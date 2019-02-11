@@ -9,15 +9,15 @@ __version__ = 0.1
 __author__ = 'Hapsida @securisec'
 
 
-class Paramduni(object):
+class Saram(object):
     '''
-    The Paramduni class
+    The Saram class
 
     :param token: Token for the URL. Provided in Slack
     :type token: str
     :param slack_user: Your Slack username
     :type slack_user: str
-    :return: Paramduni object
+    :return: Saram object
     :rtype: object
     '''
 
@@ -37,14 +37,14 @@ class Paramduni(object):
         if os.environ.get('PARAMDUNI_ENV') == 'dev':
             return f'http://localhost:5001/{token}'
         else:
-            return f'https://paramduni.securisec.com/{token}'
+            return f'https://saram.securisec.com/{token}'
 
-    def read_script(self) -> 'Paramduni':
+    def read_script(self) -> 'Saram':
         '''
         Read the contents of the file that this function is 
         called in and return the whole content
 
-        :return: Returns Paramduni object. Access with ```output``` attribute
+        :return: Returns Saram object. Access with ```output``` attribute
         :rtype: str
         '''
 
@@ -57,13 +57,13 @@ class Paramduni(object):
             self.command_run = 'Script'
             return self
 
-    def file_content(self, file_path: str) -> 'Paramduni':
+    def file_content(self, file_path: str) -> 'Saram':
         '''
         Read a files content
 
         :param file_path: File path
         :type file_path: str
-        :return: Paramduni object
+        :return: Saram object
         :rtype: object
         '''
 
@@ -75,14 +75,14 @@ class Paramduni(object):
             self.command_run = 'File'
             return self
 
-    def script_output(self, var: any) -> 'Paramduni':
+    def script_output(self, var: any) -> 'Saram':
         '''
         Send any data like the output of a python script 
         to the server
 
         :param var: Variable
         :type var: any
-        :return: Paramduni object
+        :return: Saram object
         :rtype: object
         '''
 
@@ -126,13 +126,13 @@ class Paramduni(object):
         # TODO get a list of suggested tools based on challenge category
         raise NotImplementedError('Work in progress')
 
-    def run_command(self, command: str) -> 'Paramduni':
+    def run_command(self, command: str) -> 'Saram':
         '''
         Runs the command and gets the output of stdout
 
         :param command: Command to run. Could be string or an array
         :type command: str
-        :return: Paramduni object. Access with ```command_output``` attribute
+        :return: Saram object. Access with ```command_output``` attribute
         :rtype: self
         '''
 

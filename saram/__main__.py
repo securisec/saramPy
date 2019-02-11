@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import argparse
-from paramduni import Paramduni
+from saram import Saram
 
 def main():
     parse = argparse.ArgumentParser()
@@ -13,7 +13,7 @@ def main():
     
     args = parse.parse_args()
 
-    p = Paramduni(token=args.token, slack_user=args.slack_user)
+    p = Saram(token=args.token, slack_user=args.slack_user)
 
     if args.command:
         p.run_command(args.command).send_to_server()
