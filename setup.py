@@ -11,5 +11,12 @@ setup(
     author=__author__,
     packages=find_packages(),
     install_requires = read_requirements(),
-    # scripts=['bin/paramdunicmd.py']
+    classifiers=[
+        "Programming Language :: Python :: 3.7"
+    ],
+    entry_points={
+        'console_scripts': [
+            'paramduni = paramduni.__main__:main'
+        ]
+    }
 )
