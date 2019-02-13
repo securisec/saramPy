@@ -2,6 +2,7 @@ import os
 import sys
 import re
 import json
+import logging
 import requests
 import delegator
 from uuid import uuid1
@@ -9,43 +10,58 @@ from uuid import uuid1
 __version__ = 0.1
 __author__ = 'Hapsida @securisec'
 
-
 class Saram(object):
     '''
     The Saram class
 
+    >>> from saram import Saram
+    >>> s = Saram(token='token value', user='username')
+
     :param token: Token for the URL. Provided in Slack
     :type token: str
-    :param slack_user: Your Slack username
-    :type slack_user: str
+    :param user: Your Slack username
+    :type user: str
+    :param local: Uses localhost as the host
+    :type local: bool
+    :param base_url: Set the base url
+    :type base_url: str
     :return: Saram object
     :rtype: object
     '''
 
-    def __init__(self, token: str, slack_user: str) -> object:
-        self.output = None
-        self.command_run = None
-        self.command_error = None
-        self.file_path = None
-        self.response = None
-        self.slack_user = slack_user
-        self.type = None
-        self.token = token
-        self.url = self._check_dev(self.token)
-        print(self.url)
+    def __init__(self, token: str, user: str, base_url: str=None, 
+                local: bool=False) -> object:
+        self.output: str = None
+        self.command_run: str = None
+        self.command_error: str = None
+        self.file_path: str = None
+        self.response: object = None
+        self.user: str = user
+        self.type: str = None
+        self.token: str = token
+        self.local: bool = local
+        self.base_url = base_url if base_url else self._check_dev(self.token)
+        self.url: str = f'{self.base_url}{token}'
+        
+        logging.basicConfig()
 
-    def _check_dev(self, token, base_url: bool=False) -> str:
-        if os.environ.get('SARAM_ENV') == 'dev':
-            return 'http://localhost:5001/' if base_url else f'http://localhost:5001/{token}'
+    def _verify_token(self):
+        # TODO verify token again special chars
+        pass
+
+    def _check_dev(self, token: str) -> str:
+        if self.local:
+            return 'http://localhost:5001/'
         else:
-            return 'https://saram.securisec.com/' if base_url else f'https://saram.securisec.com/{token}'
+            return 'https://saram.securisecctf.com/'
 
     def _token_generator(self, title: str) -> str:
         u = str(uuid1())[0:8]
         t = '-'.join(re.sub(r'[^a-zA-Z0-9 ]', '', title).split())[0:25]
+        logging.debug(f'Token generated: {u}-{t}')
         return f'{u}-{t}'
 
-    def read_script(self, script_name: str=None) -> 'Saram':
+    def read_full_script(self, script_name: str=None) -> 'Saram':
         '''
         Read the contents of the file that this function is 
         called in and return the whole content
@@ -105,6 +121,8 @@ class Saram(object):
         '''
         Sends a dict object to the server to save
 
+        >>> s.run_command(command).send_to_server()
+
         :return: response from request. access with ```response``` attribute
         :rtype: requests.Response
         '''
@@ -114,11 +132,12 @@ class Saram(object):
             'type': self.type,
             'output': self.output,
             'command': self.command_run,
-            'user': self.slack_user
+            'user': self.user
         }
         r = requests.post(self.url, json=json)
         self.response = r
-        print(r.text)
+        if r.status_code != 200:
+            logging.error(f'{r.status_code} {r.text}')
         return self
 
     def get_current_entries(self) -> dict:
@@ -147,15 +166,46 @@ class Saram(object):
         :rtype: self
         '''
 
+        command = command if isinstance(command, str) else ' '.join(command)
         output = delegator.run(command)
         self.type = 'stdout'
-        self.output = output.out
-        self.command_error = output.err
-        self.command_run = command
+        self.output = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output.out)
+        self.command_error = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output.err)
+        self.command_run = command if isinstance(command, str) else ' '.join(command)
         return self
 
-    def create_entry(self, title: str, category: str,
+
+class SaramHelpers(Saram):
+    """
+    This class is used to create or delete items 
+    that are already store
+    
+    :param local: Uses localhost as the host
+    :type local: bool
+    :param base_url: Set the base url
+    :type base_url: str
+    """
+
+    def __init__(self, local: bool=False, base_url: str=None):
+        super().__init__(None, None, local=local, base_url=base_url)
+    
+    def create(self, title: str, category: str,
                      slack_link: str, create_token: str) -> 'Saram':
+        """
+        Create an entry in the Saram db
+        
+        :param title: Title of the entry
+        :type title: str
+        :param category: Category for the entry
+        :type category: str
+        :param slack_link: Link to references/slack
+        :type slack_link: str
+        :param create_token: The secret token for the header
+        :type create_token: str
+        :return: Saram object.
+        :rtype: self
+        """
+
         entry = {
             'title': title,
             'category': category,
@@ -166,14 +216,35 @@ class Saram(object):
             'x-saram': create_token
         }
         token = self._token_generator(title)
-        base_url = self._check_dev(None, True)
-        url = f'{base_url}create/{token}'
-        entry_url = f'{base_url}{token}'
-        r = requests.post(url, json=entry, headers=header)
-        print(r.status_code)
+        url = f'{self.base_url}create/{token}'
+        entry_url = f'{self.base_url}{token}'
         print(entry_url)
+        r = requests.post(url, json=entry, headers=header)
+        logging.info(r.status_code)
+        logging.info(entry_url)
         self.response = r
         self.url = url
         self.token = token
+        logging.info(f'Url for entry: {entry_url}')
+        return self
+
+    def delete_entry(self, token: str, object_id) -> 'Saram':
+        """
+        Delete an entry
+        
+        :param token: Token for the entry
+        :type token: str
+        :param object_id: Id of the object to be deleted
+        :type object_id: str
+        :return: Saram object
+        :rtype: object
+        """
+
+        url = f'{self.base_url}{token}/{object_id}'
+        r = requests.delete(url)
+        if r.status_code != 200:
+            logging.error(f'{r.status_code} {r.text}')
+            return self
+        print(r.text)
         return self
         
