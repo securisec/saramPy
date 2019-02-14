@@ -111,9 +111,9 @@ class Saram(object):
             for i, line in enumerate(f):
                 lines.append(line)
                 if i == line_number - 2:
-                    self.self.self_file = self._get_file_name(self.self_file)
-                    self.type = 'script'
-                    self.command_run = 'Script' if script_name is None else script_name
+                    self.self_file = self._get_file_name(self.self_file)
+                    self.type = 'dump'
+                    self.command_run = 'Script dump' if script_name is None else script_name
                     self.output = ''.join(lines)
                     return self
 
@@ -231,8 +231,7 @@ class SaramHelpers(Saram):
     def __init__(self, local: bool=False, base_url: str=None):
         super().__init__(None, None, local=local, base_url=base_url)
     
-    def create(self, title: str, category: str,
-                     slack_link: str, create_token: str) -> 'Saram':
+    def create(self, title: str, category: str, slack_link: str) -> 'Saram':
         """
         Create an entry in the Saram db
         
@@ -242,8 +241,6 @@ class SaramHelpers(Saram):
         :type category: str
         :param slack_link: Link to references/slack
         :type slack_link: str
-        :param create_token: The secret token for the header
-        :type create_token: str
         :return: Saram object.
         :rtype: self
         """
@@ -255,14 +252,14 @@ class SaramHelpers(Saram):
             'timeCreate': str(datetime.utcnow()),
             'data': []
         }
-        header = {
-            'x-saram': create_token
-        }
+        # header = {
+        #     'x-saram': create_token
+        # }
         token = self._token_generator(title)
         url = f'{self.base_url}create/{token}'
         entry_url = f'{self.base_url}{token}'
         print(entry_url)
-        r = requests.post(url, json=entry, headers=header)
+        r = requests.post(url, json=entry) #, headers=header)
         logging.info(r.status_code)
         logging.info(entry_url)
         self.response = r
