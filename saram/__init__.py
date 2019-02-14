@@ -5,7 +5,12 @@ import json
 import logging
 import requests
 import delegator
+from inspect import currentframe
+from pathlib import Path
+from datetime import datetime
 from uuid import uuid1
+
+from .modules.exceptions import ServerError
 
 __version__ = 0.1
 __author__ = 'Hapsida @securisec'
@@ -40,10 +45,17 @@ class Saram(object):
         self.type: str = None
         self.token: str = token
         self.local: bool = local
+        self.self_file: str = sys.argv[0]
         self.base_url = base_url if base_url else self._check_dev(self.token)
         self.url: str = f'{self.base_url}{token}'
+
+        # function alias
+        self.send = self.send_to_server
         
         logging.basicConfig()
+
+    def _get_file_name(self, path):
+        return Path(path).parts[-1]
 
     def _verify_token(self):
         # TODO verify token again special chars
@@ -61,11 +73,13 @@ class Saram(object):
         logging.debug(f'Token generated: {u}-{t}')
         return f'{u}-{t}'
 
-    def read_full_script(self, script_name: str=None) -> 'Saram':
+    def script_read_self(self, script_name: str=None) -> 'Saram':
         '''
         Read the contents of the file that this function is 
         called in and return the whole content
 
+        :param script_name: Optional name of the script being read
+        :type script_name: str
         :return: Returns Saram object. Access with ```output``` attribute
         :rtype: str
         '''
@@ -73,11 +87,35 @@ class Saram(object):
         path = sys.argv[0]
         with open(path, 'r') as f:
             data = f.read()
-            self.file_path = path
+            self.file_path = self._get_file_name(path)
             self.output = data
             self.type = 'script'
             self.command_run = 'Script' if script_name is None else script_name
             return self
+
+    def script_dump(self, script_name: str=None) -> 'Saram':
+        """
+        Reads a file till the point this method is called. 
+        Can be used as many times as needed.
+        
+        :param script_name: Optional name of the script being read
+        :type script_name: str
+        :return: Saram object
+        :rtype: object
+        """
+
+        cf = currentframe()
+        line_number = cf.f_back.f_lineno
+        with open(self.self_file) as f:
+            lines = []
+            for i, line in enumerate(f):
+                lines.append(line)
+                if i == line_number - 2:
+                    self.self.self_file = self._get_file_name(self.self_file)
+                    self.type = 'script'
+                    self.command_run = 'Script' if script_name is None else script_name
+                    self.output = ''.join(lines)
+                    return self
 
     def file_content(self, file_path: str, file_name: str=None) -> 'Saram':
         '''
@@ -93,7 +131,7 @@ class Saram(object):
 
         with open(file_path, 'r') as f:
             data = f.read()
-            self.file_path = file_path
+            self.file_path = self._get_file_name(file_path)
             self.output = data
             self.type = 'file'
             self.command_run = 'File' if file_name is None else file_name
@@ -132,12 +170,15 @@ class Saram(object):
             'type': self.type,
             'output': self.output,
             'command': self.command_run,
-            'user': self.user
+            'user': self.user,
+            'time': str(datetime.utcnow())
         }
         r = requests.post(self.url, json=json)
         self.response = r
         if r.status_code != 200:
             logging.error(f'{r.status_code} {r.text}')
+            raise ServerError('Could not add')
+        print(r.text)
         return self
 
     def get_current_entries(self) -> dict:
@@ -172,6 +213,7 @@ class Saram(object):
         self.output = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output.out)
         self.command_error = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output.err)
         self.command_run = command if isinstance(command, str) else ' '.join(command)
+        print(output.out)
         return self
 
 
@@ -210,6 +252,7 @@ class SaramHelpers(Saram):
             'title': title,
             'category': category,
             'slackLink': slack_link,
+            'timeCreate': str(datetime.utcnow()),
             'data': []
         }
         header = {
