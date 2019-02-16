@@ -8,6 +8,7 @@ def main():
     parse.add_argument('-u', dest='slack_user', required=True, help='Slack username')
     parse.add_argument('-n', dest='name', default=None, help='Name of the file')
     parse.add_argument('-l', dest='local', action='store_true', help='Dev mode. Use localhost')
+    parse.add_argument('--comment', dest='comment', default='', help='Dev mode. Use localhost')
     
     group = parse.add_mutually_exclusive_group()
     group.add_argument('-c', dest='command', nargs=argparse.REMAINDER, help='Command to run inside quotes')
@@ -21,9 +22,9 @@ def main():
         p = Saram(token=args.token, user=args.slack_user)
     print(p.url)
     if args.command:
-        p.run_command(args.command).send_to_server()
+        p.run_command(args.command, comment=args.comment).send_to_server()
     elif args.file:
-        p.file_content(args.file, file_name=args.name).send_to_server()
+        p.file_content(args.file, file_name=args.name, comment=args.comment).send_to_server()
 
 
 if __name__ == "__main__":

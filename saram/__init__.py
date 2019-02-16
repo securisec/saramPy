@@ -39,6 +39,7 @@ class Saram(object):
         self.output: str = None
         self.command_run: str = None
         self.command_error: str = None
+        self.comment = ''
         self.file_path: str = None
         self.response: object = None
         self.user: str = user
@@ -73,11 +74,13 @@ class Saram(object):
         logging.debug(f'Token generated: {u}-{t}')
         return f'{u}-{t}'
 
-    def script_read_self(self, script_name: str=None) -> 'Saram':
+    def script_read_self(self, comment: str='', script_name: str=None) -> 'Saram':
         '''
         Read the contents of the file that this function is 
         called in and return the whole content
 
+        :param comment: Optional make a comment
+        :type comment: str
         :param script_name: Optional name of the script being read
         :type script_name: str
         :return: Returns Saram object. Access with ```output``` attribute
@@ -90,6 +93,7 @@ class Saram(object):
             self.file_path = self._get_file_name(path)
             self.output = data
             self.type = 'script'
+            self.comment = comment
             self.command_run = 'Script' if script_name is None else script_name
             return self
 
@@ -106,23 +110,28 @@ class Saram(object):
 
         cf = currentframe()
         line_number = cf.f_back.f_lineno
-        with open(self.self_file) as f:
-            lines = []
-            for i, line in enumerate(f):
-                lines.append(line)
-                if i == line_number - 2:
-                    self.self_file = self._get_file_name(self.self_file)
-                    self.type = 'dump'
-                    self.command_run = 'Script dump' if script_name is None else script_name
-                    self.output = ''.join(lines)
-                    return self
+        try:
+            with open(self.self_file) as f:
+                lines = []
+                for i, line in enumerate(f):
+                    lines.append(line)
+                    if i == line_number - 2:
+                        self.self_file = self._get_file_name(self.self_file)
+                        self.type = 'dump'
+                        self.command_run = 'Script dump' if script_name is None else script_name
+                        self.output = ''.join(lines)
+                        return self
+        except FileNotFoundError:
+            pass
 
-    def file_content(self, file_path: str, file_name: str=None) -> 'Saram':
+    def file_content(self, file_path: str, comment: str='', file_name: str=None) -> 'Saram':
         '''
         Read a files content
 
         :param file_path: File path
         :type file_path: str
+        :param comment: Optional make a comment
+        :type comment: str
         :param file_name: File path
         :type file_name: str
         :return: Saram object
@@ -134,16 +143,19 @@ class Saram(object):
             self.file_path = self._get_file_name(file_path)
             self.output = data
             self.type = 'file'
+            self.comment = comment
             self.command_run = 'File' if file_name is None else file_name
             return self
 
-    def variable_output(self, var: any, script_name: str=None) -> 'Saram':
+    def variable_output(self, var: any, comment: str='', script_name: str=None) -> 'Saram':
         '''
         Send any data like the output of a python script 
         to the server
 
         :param var: Variable
         :type var: any
+        :param comment: Optional make a comment
+        :type comment: str
         :param script_name: Variable
         :type script_name: any
         :return: Saram object
@@ -153,6 +165,7 @@ class Saram(object):
         self.type = 'script'
         self.command_run = 'Script' if script_name is None else script_name
         self.output = var
+        self.comment = ''
         return self
 
     def send_to_server(self) -> requests.Response:
@@ -171,9 +184,10 @@ class Saram(object):
             'output': self.output,
             'command': self.command_run,
             'user': self.user,
+            'comment': self.comment,
             'time': str(datetime.utcnow())
         }
-        r = requests.post(self.url, json=json)
+        r = requests.patch(self.url, json=json)
         self.response = r
         if r.status_code != 200:
             logging.error(f'{r.status_code} {r.text}')
@@ -197,12 +211,14 @@ class Saram(object):
         # TODO get a list of suggested tools based on challenge category
         raise NotImplementedError('Work in progress')
 
-    def run_command(self, command: str) -> 'Saram':
+    def run_command(self, command: str, comment: str='') -> 'Saram':
         '''
         Runs the command and gets the output of stdout
 
         :param command: Command to run. Could be string or an array
         :type command: str
+        :param comment: Optional make a comment
+        :type comment: str
         :return: Saram object. Access with ```command_output``` attribute
         :rtype: self
         '''
@@ -210,6 +226,7 @@ class Saram(object):
         command = command if isinstance(command, str) else ' '.join(command)
         output = delegator.run(command)
         self.type = 'stdout'
+        self.comment = comment
         self.output = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output.out)
         self.command_error = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output.err)
         self.command_run = command if isinstance(command, str) else ' '.join(command)
@@ -285,6 +302,8 @@ class SaramHelpers(Saram):
         if r.status_code != 200:
             logging.error(f'{r.status_code} {r.text}')
             return self
+        self.response = r
+        self.url = url
         print(r.text)
         return self
         
