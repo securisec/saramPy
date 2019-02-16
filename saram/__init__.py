@@ -97,27 +97,30 @@ class Saram(object):
             self.command_run = 'Script' if script_name is None else script_name
             return self
 
-    def script_dump(self, script_name: str=None) -> 'Saram':
+    def script_dump(self, script_name: str=None, comment='') -> 'Saram':
         """
         Reads a file till the point this method is called. 
         Can be used as many times as needed.
         
         :param script_name: Optional name of the script being read
         :type script_name: str
+        :param comment: Optional make a comment
+        :type comment: str
         :return: Saram object
         :rtype: object
         """
 
         cf = currentframe()
         line_number = cf.f_back.f_lineno
+        print('Line', line_number)
         try:
             with open(self.self_file) as f:
                 lines = []
                 for i, line in enumerate(f):
                     lines.append(line)
                     if i == line_number - 2:
-                        self.self_file = self._get_file_name(self.self_file)
                         self.type = 'dump'
+                        self.comment = comment
                         self.command_run = 'Script dump' if script_name is None else script_name
                         self.output = ''.join(lines)
                         return self

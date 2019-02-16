@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+from pathlib import Path
 from saram import Saram
 
 def main():
@@ -24,7 +25,7 @@ def main():
     if args.command:
         p.run_command(args.command, comment=args.comment).send_to_server()
     elif args.file:
-        p.file_content(args.file, file_name=args.name, comment=args.comment).send_to_server()
+        p.file_content(args.file, file_name=Path(args.name).parts[-1], comment=args.comment).send_to_server()
 
 
 if __name__ == "__main__":
