@@ -113,19 +113,16 @@ class Saram(object):
         cf = currentframe()
         line_number = cf.f_back.f_lineno
         print('Line', line_number)
-        try:
-            with open(self.self_file) as f:
-                lines = []
-                for i, line in enumerate(f):
-                    lines.append(line)
-                    if i == line_number - 2:
-                        self.type = 'dump'
-                        self.comment = comment
-                        self.command_run = 'Script dump' if script_name is None else script_name
-                        self.output = ''.join(lines)
-                        return self
-        except FileNotFoundError:
-            pass
+        with open(self.self_file) as f:
+            lines = []
+            for i, line in enumerate(f):
+                lines.append(line)
+                if i == line_number - 2:
+                    self.type = 'dump'
+                    self.comment = comment
+                    self.command_run = 'Script dump' if script_name is None else script_name
+                    self.output = ''.join(lines)
+                    return self
 
     def file_content(self, file_path: str, comment: str='', file_name: str=None) -> 'Saram':
         '''

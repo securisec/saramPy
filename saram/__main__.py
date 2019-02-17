@@ -25,7 +25,7 @@ def main():
     if args.command:
         p.run_command(args.command, comment=args.comment).send_to_server()
     elif args.file:
-        p.file_content(args.file, file_name=Path(args.name).parts[-1], comment=args.comment).send_to_server()
+        p.file_content(args.file, file_name=Path(args.file).parts[-1], comment=args.comment).send_to_server()
 
 
 if __name__ == "__main__":
