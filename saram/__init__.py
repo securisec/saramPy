@@ -47,7 +47,7 @@ class Saram(object):
         self.token: str = token
         self.local: bool = local
         self.self_file: str = sys.argv[0]
-        self.base_url = base_url if base_url else self._check_dev(self.token)
+        self.base_url = base_url if base_url else self._check_dev()
         self.url: str = f'{self.base_url}{token}'
 
         # function alias
@@ -62,7 +62,7 @@ class Saram(object):
         # TODO verify token again special chars
         pass
 
-    def _check_dev(self, token: str) -> str:
+    def _check_dev(self) -> str:
         if self.local:
             return 'http://localhost:5001/'
         else:
