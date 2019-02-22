@@ -9,7 +9,7 @@ def main():
     parse.add_argument('-u', dest='slack_user', required=True, help='Slack username')
     parse.add_argument('-n', dest='name', default=None, help='Name of the file')
     parse.add_argument('-l', dest='local', action='store_true', help='Dev mode. Use localhost')
-    parse.add_argument('--comment', dest='comment', default='', help='Dev mode. Use localhost')
+    parse.add_argument('--comment', dest='comment', default='SaramPY', help='Dev mode. Use localhost')
     
     group = parse.add_mutually_exclusive_group()
     group.add_argument('-c', dest='command', nargs=argparse.REMAINDER, help='Command to run inside quotes')

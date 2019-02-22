@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import sys
 import re
@@ -14,6 +15,7 @@ from .modules.exceptions import ServerError
 
 __version__ = 0.1
 __author__ = 'Hapsida @securisec'
+
 
 class Saram(object):
     '''
@@ -34,8 +36,8 @@ class Saram(object):
     :rtype: object
     '''
 
-    def __init__(self, token: str, user: str, base_url: str=None, 
-                local: bool=False) -> object:
+    def __init__(self, token: str, user: str, base_url: str=None,
+                 local: bool=False) -> object:
         self.output: str = None
         self.command_run: str = None
         self.command_error: str = None
@@ -52,7 +54,7 @@ class Saram(object):
 
         # function alias
         self.send = self.send_to_server
-        
+
         logging.basicConfig()
 
     def _get_file_name(self, path):
@@ -74,7 +76,7 @@ class Saram(object):
         logging.debug(f'Token generated: {u}-{t}')
         return f'{u}-{t}'
 
-    def script_read_self(self, comment: str='', script_name: str=None) -> 'Saram':
+    def script_read_self(self, comment: str='SaramPY', script_name: str=None) -> Saram:
         '''
         Read the contents of the file that this function is 
         called in and return the whole content
@@ -97,11 +99,11 @@ class Saram(object):
             self.command_run = 'Script' if script_name is None else script_name
             return self
 
-    def script_dump(self, script_name: str=None, comment='') -> 'Saram':
+    def script_dump(self, script_name: str=None, comment='SaramPY') -> Saram:
         """
         Reads a file till the point this method is called. 
         Can be used as many times as needed.
-        
+
         :param script_name: Optional name of the script being read
         :type script_name: str
         :param comment: Optional make a comment
@@ -124,7 +126,7 @@ class Saram(object):
                     self.output = ''.join(lines)
                     return self
 
-    def file_content(self, file_path: str, comment: str='', file_name: str=None) -> 'Saram':
+    def file_content(self, file_path: str, comment: str='SaramPY', file_name: str=None) -> Saram:
         '''
         Read a files content
 
@@ -147,7 +149,7 @@ class Saram(object):
             self.command_run = 'File' if file_name is None else file_name
             return self
 
-    def variable_output(self, var: any, comment: str='', script_name: str=None) -> 'Saram':
+    def variable_output(self, var: any, comment: str='SaramPY', script_name: str=None) -> Saram:
         '''
         Send any data like the output of a python script 
         to the server
@@ -165,7 +167,7 @@ class Saram(object):
         self.type = 'script'
         self.command_run = 'Script' if script_name is None else script_name
         self.output = var
-        self.comment = ''
+        self.comment = comment
         return self
 
     def send_to_server(self) -> requests.Response:
@@ -184,7 +186,10 @@ class Saram(object):
             'output': self.output,
             'command': self.command_run,
             'user': self.user,
-            'comment': self.comment,
+            'comment': [self.comment],
+            'options': {
+                'marked': 2
+            },
             'time': str(datetime.utcnow())
         }
         r = requests.patch(self.url, json=json)
@@ -211,7 +216,7 @@ class Saram(object):
         # TODO get a list of suggested tools based on challenge category
         raise NotImplementedError('Work in progress')
 
-    def run_command(self, command: str, comment: str='') -> 'Saram':
+    def run_command(self, command: str, comment: str='SaramPY') -> Saram:
         '''
         Runs the command and gets the output of stdout
 
@@ -229,7 +234,8 @@ class Saram(object):
         self.comment = comment
         self.output = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output.out)
         self.command_error = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output.err)
-        self.command_run = command if isinstance(command, str) else ' '.join(command)
+        self.command_run = command if isinstance(
+            command, str) else ' '.join(command)
         print(output.out)
         return self
 
@@ -238,7 +244,7 @@ class SaramHelpers(Saram):
     """
     This class is used to create or delete items 
     that are already store
-    
+
     :param local: Uses localhost as the host
     :type local: bool
     :param base_url: Set the base url
@@ -247,11 +253,11 @@ class SaramHelpers(Saram):
 
     def __init__(self, local: bool=False, base_url: str=None):
         super().__init__(None, None, local=local, base_url=base_url)
-    
-    def create(self, title: str, category: str, slack_link: str) -> 'Saram':
+
+    def create(self, title: str, category: str, slack_link: str) -> Saram:
         """
         Create an entry in the Saram db
-        
+
         :param title: Title of the entry
         :type title: str
         :param category: Category for the entry
@@ -276,7 +282,7 @@ class SaramHelpers(Saram):
         url = f'{self.base_url}create/{token}'
         entry_url = f'{self.base_url}{token}'
         print(entry_url)
-        r = requests.post(url, json=entry) #, headers=header)
+        r = requests.post(url, json=entry)  # , headers=header)
         logging.info(r.status_code)
         logging.info(entry_url)
         self.response = r
@@ -285,10 +291,10 @@ class SaramHelpers(Saram):
         logging.info(f'Url for entry: {entry_url}')
         return self
 
-    def delete_entry(self, token: str, object_id) -> 'Saram':
+    def delete_entry(self, token: str, object_id) -> Saram:
         """
         Delete an entry
-        
+
         :param token: Token for the entry
         :type token: str
         :param object_id: Id of the object to be deleted
@@ -306,4 +312,3 @@ class SaramHelpers(Saram):
         self.url = url
         print(r.text)
         return self
-        
