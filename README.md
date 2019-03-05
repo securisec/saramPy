@@ -1,15 +1,14 @@
-Saram
-=========
+<img src="logo.png" width="150px">
 
-Install
-=======
-Install with pip
+# Saram
+
+## Install
+- Install with pip
 ```
 pip3 install -e .
 ```
 
-Docs
-====
+## Docs
 To set up docs, run the following commands from inside the 
 saram directory
 ```
