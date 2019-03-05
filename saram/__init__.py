@@ -208,7 +208,7 @@ class Saram(object):
         :rtype: dict
         '''
 
-        self.response = requests.get(self.url + '/api')
+        self.response = requests.get(f'{self.base_url}api/all/4df9cc121afe1c00de4e9e396af4cdb1')
         if self.response.status_code == 200:
             return self.response.json()
 
@@ -279,7 +279,7 @@ class SaramHelpers(Saram):
         #     'x-saram': create_token
         # }
         token = self._token_generator(title)
-        url = f'{self.base_url}create/{token}'
+        url = f'{self.base_url}api/create/{token}'
         entry_url = f'{self.base_url}{token}'
         print(entry_url)
         r = requests.post(url, json=entry)  # , headers=header)
@@ -291,19 +291,19 @@ class SaramHelpers(Saram):
         logging.info(f'Url for entry: {entry_url}')
         return self
 
-    def delete_entry(self, token: str, object_id) -> Saram:
+    def delete_entry(self, token: str, del_id: str) -> Saram:
         """
         Delete an entry
 
         :param token: Token for the entry
         :type token: str
-        :param object_id: Id of the object to be deleted
-        :type object_id: str
+        :param del_id: Id of the object to be deleted
+        :type del_id: str
         :return: Saram object
         :rtype: object
         """
 
-        url = f'{self.base_url}{token}/{object_id}'
+        url = f'{self.base_url}api/{token}/{del_id}'
         r = requests.delete(url)
         if r.status_code != 200:
             logging.error(f'{r.status_code} {r.text}')
