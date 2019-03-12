@@ -4,6 +4,7 @@ dist: xenial
 sudo: true
 
 install:
+  - 'pip -v install requests delegator.py'
   - 'pip -v install .'
 
 script:
