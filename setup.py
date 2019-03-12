@@ -10,7 +10,10 @@ setup(
     version=__version__,
     author=__author__,
     packages=find_packages(),
-    install_requires = read_requirements(),
+    install_requires = [
+        'requests',
+        'delegator.py'
+    ],
     classifiers=[
         "Programming Language :: Python :: 3.7"
     ],
