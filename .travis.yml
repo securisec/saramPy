@@ -2,12 +2,13 @@ language: python
 python: 3.7
 dist: xenial
 sudo: true
-
 install:
-  - 'pip -v install requests delegator.py'
-  - 'pip -v install .'
-
+- pip -v install requests delegator.py
+- pip -v install .
 script:
-  - 'python -V'
-  - 'python ./test/travis.py'
-  - 'saram -h'
+- python -V
+- python ./test/travis.py
+- saram -h
+notifications:
+  slack:
+    secure: a+sTsASHDm0dVgsGVlKEu1zU56imPk0QooUAADX4re41mTUQHX3nni+PYzcVn1Z0l8J1kitDRM1ADHZuTjt1JRyjLNkCzcBtSY62r6YBhsIoNp4wU+IZV6inzRtky729jA4JCa0ne/mIKXR3fG0C7dbGeR2SuUim5osPfp50OG7Kkqm4sy5guZdmoi8s2vaQN8R2rnhio4jGsJlQtUONnbRjUf0sk6DZSHO4j2RITKvH5hZCKjCoWnbq9Ucz0PR4yhx33mwzKEinykQ+AdnErheu6XNCZJAjHtKToCG71FicldXOSHlfIz1HF2UDKB6OydyuPCNDIvu40UV12/Igr980HdZxS7YTMFE/dKoKk4TQrqskVDR6PYpxpuIvpJu0Z6vIEj9W1ij4NsuDk13p175RtTSwrhZE8uBl7FfC+AQP0BUIVPI4rWxNKQWQaMb3XtjvYeABIuwuHcWDSEDWd3PlwS4A59cVOJihJu+kodlX0f/fbepvnHSIxNJ8pi5Tv/V/KHtLybna4lfWztRyRdIW9Ql2sqC4wAhOaw1ZbCoxzVJ/zSwgCNgYkXjaAVnC7MDP+TElQWeqyoLdSOwtN0FSlnGUnM0+QS03cR1wabKWF3AnzB5u1Py4V8Bljx3Sg8qdKKzsISilclfp9zP9IeAdo01I0ZuF5YPTsGe9iaY=
