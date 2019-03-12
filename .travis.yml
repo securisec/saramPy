@@ -4,7 +4,7 @@ dist: xenial
 sudo: true
 
 install:
-  - pip -v install .
+  - 'pip -v install .'
 
 script:
   - 'python -V'
