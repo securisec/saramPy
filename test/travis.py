@@ -1,4 +1,4 @@
-from saram import Saram, SaramHelpers
+from saramPy import Saram, SaramHelpers
 from pprint import pprint
 
 def dump(obj):
