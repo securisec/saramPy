@@ -1,4 +1,4 @@
-<img src="logo.png" width="150px">
+<img src="https://raw.githubusercontent.com/securisec/saramPy/master/logo.png" width="150px">
 
 [![Build Status](https://travis-ci.com/securisec/saramPy.svg?token=8GQfGnTK7S1NU7bKCqeR&branch=master)](https://travis-ci.com/securisec/saramPy)
 [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](http://sarampy.readthedocs.io/en/latest/)
@@ -11,12 +11,12 @@
 
 
 ## Install
-- May have to install with *sudo* to ensure saram is placed on path. 
+May have to install with *sudo* to ensure saram is placed on path. 
 ```bash
 pip3 install saramPy
 ```
 
-- Install dev version with pip
+#### Install dev version with pip
 ```
 git clone https://github.com/securisec/saramPy.git
 cd saramPy

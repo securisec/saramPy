@@ -21,7 +21,7 @@ class Saram(object):
     The Saram class
 
     >>> # import and instantiate Saram
-    >>> from saram import Saram
+    >>> from saramPy import Saram
     >>> s = Saram(token='token value', user='username')
 
     :param token: Token for the URL. Provided in Slack
@@ -217,22 +217,6 @@ class Saram(object):
         print(r.text)
         return self
 
-    def get_current_entries(self) -> dict:
-        '''
-        Get the current data from the server as an object
-
-        :return: Data in server
-        :rtype: dict
-        '''
-
-        self.response = requests.get(f'{self.base_url}api/all/4df9cc121afe1c00de4e9e396af4cdb1')
-        if self.response.status_code == 200:
-            return self.response.json()
-
-    def get_suggested_tools(self, parameter_list):
-        # TODO get a list of suggested tools based on challenge category
-        raise NotImplementedError('Work in progress')
-
     def run_command(self, command: str, comment: str=None) -> Saram:
         '''
         Runs the command and gets the output of stdout. Does not 
@@ -279,6 +263,7 @@ class SaramHelpers(Saram):
         super().__init__(None, None, local=local, base_url=base_url)
 
     def create(self, title: str, category: str, slack_link: str) -> Saram:
+        raise NotImplementedError('This is a placeholder')
         """
         Create an entry in the Saram db
 
