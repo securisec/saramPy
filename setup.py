@@ -1,12 +1,19 @@
 from setuptools import setup, find_packages
-from saram import __version__, __author__
+from os import path
+from saramPy import __version__, __author__
 
 def read_requirements():
     with open('requirements.txt') as f:
         return f.read().splitlines()
 
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(
-    name="saram",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    name="saramPy",
     version=__version__,
     author=__author__,
     packages=find_packages(),
@@ -19,7 +26,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'saram = saram.__main__:main'
+            'saram = saramPy.__main__:main'
         ]
     }
 )

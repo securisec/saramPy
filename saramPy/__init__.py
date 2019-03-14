@@ -13,7 +13,7 @@ from uuid import uuid1
 
 from .modules.exceptions import ServerError
 
-__version__ = 0.1
+__version__ = 1.01
 __author__ = 'Hapsida @securisec'
 
 
@@ -21,6 +21,7 @@ class Saram(object):
     '''
     The Saram class
 
+    >>> # import and instantiate Saram
     >>> from saram import Saram
     >>> s = Saram(token='token value', user='username')
 
@@ -41,7 +42,7 @@ class Saram(object):
         self.output: str = None
         self.command_run: str = None
         self.command_error: str = None
-        self.comment = ''
+        self.comment = ['saramPy']
         self.file_path: str = None
         self.response: object = None
         self.user: str = user
@@ -58,13 +59,11 @@ class Saram(object):
         logging.basicConfig()
 
     def _get_file_name(self, path):
+        """Returns the basename from the path"""
         return Path(path).parts[-1]
 
-    def _verify_token(self):
-        # TODO verify token again special chars
-        pass
-
     def _check_dev(self) -> str:
+        """Returns localhost or default Saram server url"""
         if self.local:
             return 'http://localhost:5001/'
         else:
@@ -76,10 +75,11 @@ class Saram(object):
         logging.debug(f'Token generated: {u}-{t}')
         return f'{u}-{t}'
 
-    def script_read_self(self, comment: str='SaramPY', script_name: str=None) -> Saram:
+    def script_read_self(self, comment: str=None, script_name: str=None) -> Saram:
         '''
         Read the contents of the file that this function is 
-        called in and return the whole content
+        called in and return the whole content. Optional parameters are 
+        ```comment``` and ```script``` name.
 
         :param comment: Optional make a comment
         :type comment: str
@@ -87,6 +87,9 @@ class Saram(object):
         :type script_name: str
         :return: Returns Saram object. Access with ```output``` attribute
         :rtype: str
+        
+        >>> s.script_read_self(script_name="solver.py", comment="Solve pwn challenge")
+        >>> s.send() # send the content to the server
         '''
 
         path = sys.argv[0]
@@ -95,11 +98,12 @@ class Saram(object):
             self.file_path = self._get_file_name(path)
             self.output = data
             self.type = 'script'
-            self.comment = comment
+            if comment is not None:
+                self.comment.append(comment)
             self.command_run = 'Script' if script_name is None else script_name
             return self
 
-    def script_dump(self, script_name: str=None, comment='SaramPY') -> Saram:
+    def script_dump(self, script_name: str=None, comment=None) -> Saram:
         """
         Reads a file till the point this method is called. 
         Can be used as many times as needed.
@@ -121,14 +125,16 @@ class Saram(object):
                 lines.append(line)
                 if i == line_number - 2:
                     self.type = 'dump'
-                    self.comment = comment
+                    if comment is not None:
+                        self.comment.append(comment)
                     self.command_run = 'Script dump' if script_name is None else script_name
                     self.output = ''.join(lines)
                     return self
 
-    def file_content(self, file_path: str, comment: str='SaramPY', file_name: str=None) -> Saram:
+    def file_content(self, file_path: str, comment: str=None, file_name: str=None) -> Saram:
         '''
-        Read a files content
+        Reads the content of the provided files path. Optional 
+        parameters are comment and file_name. 
 
         :param file_path: File path
         :type file_path: str
@@ -138,6 +144,8 @@ class Saram(object):
         :type file_name: str
         :return: Saram object
         :rtype: object
+
+        >>> s.file_content('/path/to/file.extension').send() # send the content to the server
         '''
 
         with open(file_path, 'r') as f:
@@ -145,14 +153,17 @@ class Saram(object):
             self.file_path = self._get_file_name(file_path)
             self.output = data
             self.type = 'file'
-            self.comment = comment
+            if comment is not None:
+                self.comment.append(comment)
             self.command_run = 'File' if file_name is None else file_name
             return self
 
-    def variable_output(self, var: any, comment: str='SaramPY', script_name: str=None) -> Saram:
+    def variable_output(self, var: any, comment: str=None, script_name: str=None) -> Saram:
         '''
         Send any data like the output of a python script 
-        to the server
+        to the server. This is useful when only the output of a particular 
+        variable needs to the sent to the sever, and not the whole 
+        script itself. Optional parameters are comment and script_name.
 
         :param var: Variable
         :type var: any
@@ -162,17 +173,24 @@ class Saram(object):
         :type script_name: any
         :return: Saram object
         :rtype: object
+
+        >>> # set data to a variable
+        >>> response = request.get('https://google.com').text
+        >>> # Send data to the server
+        >>> s.variable_output(response).send()
         '''
 
         self.type = 'script'
         self.command_run = 'Script' if script_name is None else script_name
         self.output = var
-        self.comment = comment
+        if comment is not None:
+            self.comment.append(comment)
         return self
 
     def send_to_server(self) -> requests.Response:
         '''
-        Sends a dict object to the server to save
+        Sends a dict object to the server to save. Will print 
+        OK or 200 status code on success.
 
         >>> s.run_command(command).send_to_server()
 
@@ -186,7 +204,7 @@ class Saram(object):
             'output': self.output,
             'command': self.command_run,
             'user': self.user,
-            'comment': [self.comment],
+            'comment': self.comment,
             'options': {
                 'marked': 2
             },
@@ -216,9 +234,12 @@ class Saram(object):
         # TODO get a list of suggested tools based on challenge category
         raise NotImplementedError('Work in progress')
 
-    def run_command(self, command: str, comment: str='SaramPY') -> Saram:
+    def run_command(self, command: str, comment: str=None) -> Saram:
         '''
-        Runs the command and gets the output of stdout
+        Runs the command and gets the output of stdout. Does not 
+        support bash one liners or too many piped outputs. In those 
+        cases, write the command to a file, and send the content of the 
+        file instead with ```file_content```. Optional params are ```comment```.
 
         :param command: Command to run. Could be string or an array
         :type command: str
@@ -226,12 +247,16 @@ class Saram(object):
         :type comment: str
         :return: Saram object. Access with ```command_output``` attribute
         :rtype: self
+
+        >>> s.run_command('ls -l /tmp/', comment='Output of ls')
+        >>> s.send()
         '''
 
         command = command if isinstance(command, str) else ' '.join(command)
         output = delegator.run(command)
         self.type = 'stdout'
-        self.comment = comment
+        if comment is not None:
+            self.comment.append(comment)
         self.output = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output.out)
         self.command_error = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output.err)
         self.command_run = command if isinstance(
@@ -275,9 +300,6 @@ class SaramHelpers(Saram):
             'timeCreate': str(datetime.utcnow()),
             'data': []
         }
-        # header = {
-        #     'x-saram': create_token
-        # }
         token = self._token_generator(title)
         url = f'{self.base_url}api/create/{token}'
         entry_url = f'{self.base_url}{token}'

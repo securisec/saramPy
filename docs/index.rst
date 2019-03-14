@@ -1,7 +1,12 @@
 Saram's documentation
 =====================
 
-.. automodule:: saram
+.. image:: logo.png
+    :width: 200
+
+This is the documentation for saramPy, the Python interface for the Saram API.
+
+.. automodule:: saramPy
     :members:
 
 .. toctree::
