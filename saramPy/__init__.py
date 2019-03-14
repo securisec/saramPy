@@ -10,12 +10,11 @@ from inspect import currentframe
 from pathlib import Path
 from datetime import datetime
 from uuid import uuid1
+from pkg_resources import get_distribution
 
 from .modules.exceptions import ServerError
 
-__version__ = 1.02
-__author__ = 'Hapsida @securisec'
-
+__version__ = get_distribution('saramPy').version
 
 class Saram(object):
     '''

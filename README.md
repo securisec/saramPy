@@ -12,6 +12,10 @@
 
 ## Install
 - May have to install with *sudo* to ensure saram is placed on path. 
+```bash
+pip3 install saramPy
+```
+
 - Install dev version with pip
 ```
 git clone https://github.com/securisec/saramPy.git
@@ -28,18 +32,20 @@ Refer to the docs on how to user `saramPy` Python module.
 ### Command line tool
 ```bash
 $ saram --help
-usage: saram [-h] -t TOKEN -u SLACK_USER [-n NAME] [-l] [--comment COMMENT]
+usage: saram [-h] -t TOKEN -u SLACK_USER [-l] [--comment COMMENT]
              [-c ... | -f FILE]
 
 optional arguments:
-  -h, --help         show this help message and exit
-  -t TOKEN           Token provided in Slack
-  -u SLACK_USER      Slack username
-  -n NAME            Name of the file
-  -l                 Dev mode. Use localhost
-  --comment COMMENT  Dev mode. Use localhost
-  -c ...             Command to run inside quotes
-  -f FILE            Read a file and send it to the server
+  -h, --help            show this help message and exit
+  -t TOKEN, --token TOKEN
+                        Token provided in Slack
+  -u SLACK_USER, --user SLACK_USER
+                        Slack username
+  -l, --local           Dev mode. Use localhost
+  --comment COMMENT     Add an optional comment
+  -c ..., --command ...
+                        Command to run inside quotes
+  -f FILE, --file FILE  Read a file and send it to the server
 ```
 
 
