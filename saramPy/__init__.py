@@ -24,10 +24,8 @@ class Saram(object):
     >>> from saramPy import Saram
     >>> s = Saram(token='token value', user='username')
 
-    :param token: Token for the URL. Provided in Slack
+    :param token: Token for the Entry/URL. Provided in Slack
     :type token: str
-    :param user: Your Slack username
-    :type user: str
     :param local: Uses localhost as the host
     :type local: bool
     :param base_url: Set the base url
@@ -36,7 +34,7 @@ class Saram(object):
     :rtype: object
     '''
 
-    def __init__(self, token: str, user: str, base_url: str=None,
+    def __init__(self, token: str, base_url: str=None,
                  local: bool=False) -> object:
         self.output: str = None
         self.command_run: str = None
@@ -44,14 +42,22 @@ class Saram(object):
         self.comment = ['saramPy']
         self.file_path: str = None
         self.response: object = None
-        self.user: str = user
         self.type: str = None
         self.token: str = token
         self.local: bool = local
         self.self_file: str = sys.argv[0]
         self.base_url = base_url if base_url else self._check_dev()
         self.url: str = f'{self.base_url}{token}'
+        self._conf_file = f'{Path(Path().home())}/.saram.conf'
 
+        if not Path(self._conf_file).exists():
+            raise TypeError('Cannot find saram conf file. Init with --init or SaramInit')
+        
+        with open(self._conf_file, 'r') as f:
+            conf = json.loads(f.read())
+            self.user = conf['username'] 
+            self.apiKey = conf['apiKey']
+        
         # function alias
         self.send = self.send_to_server
 
@@ -209,7 +215,10 @@ class Saram(object):
             },
             'time': str(datetime.utcnow())
         }
-        r = requests.patch(self.url, json=json)
+        headers = {
+            'x-saram-apikey': self.apiKey
+        }
+        r = requests.patch(self.url, json=json, headers=headers)
         self.response = r
         if r.status_code != 200:
             logging.error(f'{r.status_code} {r.text}')
@@ -284,11 +293,14 @@ class SaramHelpers(Saram):
             'timeCreate': str(datetime.utcnow()),
             'data': []
         }
+        headers = {
+            'x-saram-apikey': self.apiKey
+        }
         token = self._token_generator(title)
         url = f'{self.base_url}api/create/{token}'
         entry_url = f'{self.base_url}{token}'
         print(entry_url)
-        r = requests.post(url, json=entry)  # , headers=header)
+        r = requests.post(url, json=entry, headers=headers)
         logging.info(r.status_code)
         logging.info(entry_url)
         self.response = r
@@ -310,7 +322,10 @@ class SaramHelpers(Saram):
         """
 
         url = f'{self.base_url}api/{token}/{del_id}'
-        r = requests.delete(url)
+        headers = {
+            'x-saram-apikey': self.apiKey
+        }
+        r = requests.delete(url, headers=headers)
         if r.status_code != 200:
             logging.error(f'{r.status_code} {r.text}')
             return self
@@ -318,3 +333,40 @@ class SaramHelpers(Saram):
         self.url = url
         print(r.text)
         return self
+
+class SaramInit(Saram):
+    """
+    The class will create the saram.conf file and read 
+    values from it from the main Saram class. ```api_key``` 
+    is required at init.
+
+    :param api_key: API key. Provided in Saram after authentication
+    :type token: str
+    :param local: Uses localhost as the host
+    :type local: bool
+    :param base_url: Set the base url
+    :type base_url: str
+    """
+
+    def __init__(self, api_key: str, local: bool=False, base_url: str=None) -> None:
+        super().__init__(None, base_url, local)
+        self.api_key = api_key
+        self._home_path = Path().home()
+        self._conf_file = Path(f'{self._home_path}/.saram.conf')
+
+    def _verify_api_key(self):
+        r = requests.post(
+            f'{self.base_url}misc/valid/key',
+            json={'key': self.api_key}
+        )
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise TypeError('API key is not valid')
+        
+    def init(self) -> None:
+        creds = self._verify_api_key()
+        with open(self._conf_file, 'w') as f:
+            f.write(json.dumps(creds))
+        print(f'Saved the conf file to ${self._conf_file}')
+    

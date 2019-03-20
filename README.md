@@ -26,26 +26,30 @@ git pull
 ```
 
 ## Usage
+### Init
+Before using saramPy, make sure to setup the API key. Easiest way to set it up is to run 
+```bash
+saram --init yourapikey
+```
 ### Script
 Refer to the docs on how to user `saramPy` Python module.
 
 ### Command line tool
 ```bash
 $ saram --help
-usage: saram [-h] -t TOKEN -u SLACK_USER [-l] [--comment COMMENT]
-             [-c ... | -f FILE]
+usage: saram [-h] -t TOKEN [-l] [--comment COMMENT] [-c ... | -f FILE]
+             [--baseurl BASEURL]
 
 optional arguments:
   -h, --help            show this help message and exit
   -t TOKEN, --token TOKEN
                         Token provided in Slack
-  -u SLACK_USER, --user SLACK_USER
-                        Slack username
   -l, --local           Dev mode. Use localhost
   --comment COMMENT     Add an optional comment
   -c ..., --command ...
                         Command to run inside quotes
   -f FILE, --file FILE  Read a file and send it to the server
+  --baseurl BASEURL
 ```
 
 

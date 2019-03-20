@@ -7,7 +7,6 @@ def dump(obj):
 
 s = Saram(
     token='Some Token',
-    user='SomeUser',
     local=True
 )
 
