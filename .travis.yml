@@ -2,13 +2,12 @@ language: python
 python: 3.7
 dist: xenial
 sudo: true
-before_install:
-  - echo '{"apiKey": "somesecrettoken", "username": "saramPyUser"}' > ~/.saram.conf
 install:
 - pip -v install requests delegator.py
 - pip -v install .
 script:
 - python -V
+- echo '{"apiKey": "somesecrettoken", "username": "saramPyUser"}' > ~/.saram.conf
 - python ./test/travis.py
 - saram -h
 deploy:
