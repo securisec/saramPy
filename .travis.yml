@@ -6,8 +6,8 @@ install:
 - pip -v install requests delegator.py
 - pip -v install .
 script:
+- cp ./test/api.json ~/.saram.conf
 - python -V
-- echo '{"apiKey": "somesecrettoken", "username": "saramPyUser"}' > ~/.saram.conf
 - python ./test/travis.py
 - saram -h
 deploy:
