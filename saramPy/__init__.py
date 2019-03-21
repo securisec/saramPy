@@ -49,14 +49,6 @@ class Saram(object):
         self.base_url = base_url if base_url else self._check_dev()
         self.url: str = f'{self.base_url}{token}'
         self._conf_file = f'{Path(Path().home())}/.saram.conf'
-
-        if not Path(self._conf_file).exists():
-            raise TypeError('Cannot find saram conf file. Init with --init or SaramInit')
-        
-        with open(self._conf_file, 'r') as f:
-            conf = json.loads(f.read())
-            self.user = conf['username'] 
-            self.apiKey = conf['apiKey']
         
         # function alias
         self.send = self.send_to_server
@@ -203,7 +195,12 @@ class Saram(object):
         :rtype: requests.Response
         '''
 
-        json = {
+        with open(self._conf_file, 'r') as f:
+            conf = json.loads(f.read())
+            self.user = conf['username'] 
+            self.apiKey = conf['apiKey']
+
+        json_payload = {
             'id': str(uuid1()),
             'type': self.type,
             'output': self.output,
@@ -218,7 +215,7 @@ class Saram(object):
         headers = {
             'x-saram-apikey': self.apiKey
         }
-        r = requests.patch(self.url, json=json, headers=headers)
+        r = requests.patch(self.url, json=json_payload, headers=headers)
         self.response = r
         if r.status_code != 200:
             logging.error(f'{r.status_code} {r.text}')
