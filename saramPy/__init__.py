@@ -269,10 +269,9 @@ class SaramHelpers(Saram):
     """
 
     def __init__(self, local: bool=False, base_url: str=None):
-        super().__init__(None, None, local=local, base_url=base_url)
+        super().__init__(None, local=local, base_url=base_url)
 
     def create(self, title: str, category: str, slack_link: str) -> Saram:
-        raise NotImplementedError('This is a placeholder')
         """
         Create an entry in the Saram db
 
@@ -285,6 +284,29 @@ class SaramHelpers(Saram):
         :return: Saram object.
         :rtype: self
         """
+
+        valid_cat = [
+            'android',
+            'cryptograpy',
+            'firmware',
+            'forensics',
+            'hardware',
+            'ios',
+            'misc',
+            'network',
+            'none',
+            'other',
+            'pcap',
+            'pwn',
+            'reversing',
+            'scripting',
+            'stego',
+            'web'
+        ]
+
+        if category not in valid_cat:
+            valid = '\n'.join(valid_cat)
+            raise TypeError(f'Valid categories are \n{valid}')
 
         entry = {
             'title': title,
