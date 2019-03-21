@@ -3,6 +3,7 @@ import argparse
 from pathlib import Path
 from saramPy import Saram, SaramInit
 
+
 def main():
     parse = argparse.ArgumentParser(add_help=False)
     parse.add_argument('--init', dest='init', help='Configure Saram config file. Pass the api key')
