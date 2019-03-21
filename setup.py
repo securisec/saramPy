@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 from os import path
 
-__version__ = '1.0.5'
+__version__ = '1.0.6'
 __author__ = 'Hapsida @securisec'
 
 def read_requirements():
@@ -19,7 +19,10 @@ setup(
     version=__version__,
     author=__author__,
     packages=find_packages(),
-    install_requires = read_requirements(),
+    install_requires = [
+        'requests',
+        'delegator.py'
+    ],
     classifiers=[
         "Programming Language :: Python :: 3.7"
     ],
