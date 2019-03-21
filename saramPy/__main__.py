@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 from pathlib import Path
-from saramPy import Saram, SaramInit, __version__
+from saramPy import Saram, SaramInit
 
 def main():
     parse = argparse.ArgumentParser(add_help=False)
@@ -18,7 +18,6 @@ def main():
     # main argument parser
     else:
         parse = argparse.ArgumentParser(add_help=True)
-        parse.add_argument('-t', '--token', dest='token', required=True, help='Token provided in Slack')
         parse.add_argument('-t', '--token', dest='token', required=True, help='Token provided in Slack')
         parse.add_argument('-l', '--local', dest='local', action='store_true', help='Dev mode. Use localhost')
         parse.add_argument('--comment', dest='comment', default=None, help='Add an optional comment')
