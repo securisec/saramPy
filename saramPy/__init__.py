@@ -213,7 +213,8 @@ class Saram(object):
             'time': str(datetime.utcnow())
         }
         headers = {
-            'x-saram-apikey': self.apiKey
+            'x-saram-apikey': self.apiKey,
+            'x-saram-username': self.user,
         }
         r = requests.patch(self.url, json=json_payload, headers=headers)
         self.response = r
@@ -313,7 +314,8 @@ class SaramHelpers(Saram):
             'data': []
         }
         headers = {
-            'x-saram-apikey': self.apiKey
+            'x-saram-apikey': self.apiKey,
+            'x-saram-username': self.user,
         }
         token = self._token_generator(title)
         url = f'{self.base_url}api/create/{token}'
@@ -342,7 +344,8 @@ class SaramHelpers(Saram):
 
         url = f'{self.base_url}api/{token}/{del_id}'
         headers = {
-            'x-saram-apikey': self.apiKey
+            'x-saram-apikey': self.apiKey,
+            'x-saram-username': self.user,
         }
         r = requests.delete(url, headers=headers)
         if r.status_code != 200:
