@@ -47,7 +47,7 @@ class Saram(object):
         self.local: bool = local
         self.self_file: str = sys.argv[0]
         self.base_url = base_url if base_url else self._check_dev()
-        self.url: str = f'{self.base_url}{token}'
+        self.url: str = f'{self.base_url}api/{token}'
         self._conf_file = f'{Path(Path().home())}/.saram.conf'
         
         # function alias
