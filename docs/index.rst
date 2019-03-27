@@ -30,7 +30,47 @@ Command line
 saramPy docs
 """"""""""""
 
-.. automodule:: saramPy
+Command line tool
+=================
+```saramPy``` will install a handy command line tool that ties around the most commonly used methods. 
+
+.. code-block:: bash
+
+    usage: saram [-h] -t TOKEN [-l] [--comment COMMENT] [-c ... | -f FILE]
+             [--baseurl BASEURL]
+
+    optional arguments:
+    -h, --help            show this help message and exit
+    -t TOKEN, --token TOKEN
+                            Token provided in Slack
+    -l, --local           Dev mode. Use localhost
+    --comment COMMENT     Add an optional comment
+    -c ..., --command ...
+                            Command to run inside quotes
+    -f FILE, --file FILE  Read a file and send it to the server
+    --baseurl BASEURL
+
+Python module
+=============
+```saramPy``` exposes two main classes with distinct use cases.
+
+saramPy.Saram
+"""""""""""""
+This class exposes the most helpful classes and is typically used for:
+    
+    - sending script output
+    - sending command output
+    - sending code examples
+
+.. autoclass:: saramPy.Saram
+    :members:
+
+saramPy.api.SaramAPI
+""""""""""""""""""""
+This class exports the full functionality of the Saram API and can be 
+use to build tools and integrations around.
+
+.. autoclass:: saramPy.api.SaramAPI
     :members:
 
 .. toctree::

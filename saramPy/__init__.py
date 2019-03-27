@@ -46,6 +46,7 @@ class Saram(object):
         self.token: str = token
         self.local: bool = local
         self.self_file: str = sys.argv[0]
+        self._time = str(datetime.utcnow())
         self.base_url = base_url if base_url else self._check_dev()
         self.url: str = f'{self.base_url}api/{token}'
         self._conf_file = f'{Path(Path().home())}/.saram.conf'
@@ -254,107 +255,6 @@ class Saram(object):
         print(output.out)
         return self
 
-
-class SaramHelpers(Saram):
-    """
-    This class is used to create or delete items 
-    that are already store
-
-    :param local: Uses localhost as the host
-    :type local: bool
-    :param base_url: Set the base url
-    :type base_url: str
-    """
-
-    def __init__(self, local: bool=False, base_url: str=None):
-        super().__init__(None, local=local, base_url=base_url)
-
-    def create(self, title: str, category: str, slack_link: str) -> Saram:
-        """
-        Create an entry in the Saram db
-
-        :param title: Title of the entry
-        :type title: str
-        :param category: Category for the entry
-        :type category: str
-        :param slack_link: Link to references/slack
-        :type slack_link: str
-        :return: Saram object.
-        :rtype: self
-        """
-
-        valid_cat = [
-            'android',
-            'cryptograpy',
-            'firmware',
-            'forensics',
-            'hardware',
-            'ios',
-            'misc',
-            'network',
-            'none',
-            'other',
-            'pcap',
-            'pwn',
-            'reversing',
-            'scripting',
-            'stego',
-            'web'
-        ]
-
-        if category not in valid_cat:
-            valid = '\n'.join(valid_cat)
-            raise TypeError(f'Valid categories are \n{valid}')
-
-        entry = {
-            'title': title,
-            'category': category,
-            'slackLink': slack_link,
-            'timeCreate': str(datetime.utcnow()),
-            'data': []
-        }
-        headers = {
-            'x-saram-apikey': self.apiKey,
-            'x-saram-username': self.user,
-        }
-        token = self._token_generator(title)
-        url = f'{self.base_url}api/create/{token}'
-        entry_url = f'{self.base_url}{token}'
-        print(entry_url)
-        r = requests.post(url, json=entry, headers=headers)
-        logging.info(r.status_code)
-        logging.info(entry_url)
-        self.response = r
-        self.url = url
-        self.token = token
-        logging.info(f'Url for entry: {entry_url}')
-        return self
-
-    def delete_entry(self, token: str, del_id: str) -> Saram:
-        """
-        Delete an entry
-
-        :param token: Token for the entry
-        :type token: str
-        :param del_id: Id of the object to be deleted
-        :type del_id: str
-        :return: Saram object
-        :rtype: object
-        """
-
-        url = f'{self.base_url}api/{token}/{del_id}'
-        headers = {
-            'x-saram-apikey': self.apiKey,
-            'x-saram-username': self.user,
-        }
-        r = requests.delete(url, headers=headers)
-        if r.status_code != 200:
-            logging.error(f'{r.status_code} {r.text}')
-            return self
-        self.response = r
-        self.url = url
-        print(r.text)
-        return self
 
 class SaramInit(Saram):
     """
