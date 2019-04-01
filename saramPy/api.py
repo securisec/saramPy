@@ -31,6 +31,7 @@ class SaramAPI(Saram):
             conf = json.loads(f.read())
             self.username = conf['username'] 
             self.apiKey = conf['apiKey']
+            self.avatar = conf.get('avatar', '/static/saramapi.png')
         self.api_url = f'{self.base_url}api/'
         self._valid_types = ['file', 'stdout', 'script', 'dump', 'tool', 'image']
         self._valid_categories = [
@@ -113,7 +114,7 @@ class SaramAPI(Saram):
             raise StatusNotOk(f'Could not delete Status code: {r.status}')
 
     def create_new_section(self, token: str, type: str,
-        output: str, command: str, comment: list=['saramPy']
+        output: str, command: str, comment: str='saramPy'
     ) -> dict:
         """
         Create a new section. This will add to the existing entry.
@@ -140,7 +141,11 @@ class SaramAPI(Saram):
             'output': output,
             'command': command,
             'user': self.username,
-            'comment': comment,
+            'comment': {
+                'text': comment,
+                'username': self.username,
+                'avatar': self.avatar
+            },
             'options': {
                 'marked': 2
             },
@@ -173,7 +178,11 @@ class SaramAPI(Saram):
         """
 
         payload = {
-            'data': comment
+            'data': {
+                'text': comment,
+                'username': self.username,
+                'avatar': self.avatar
+            }
         }
         r = requests.patch(f'{self.api_url}{token}/{dataid}/comment',
         json=payload, headers=self._headers)
@@ -203,7 +212,7 @@ class SaramAPI(Saram):
 
     def create_new_entry(self, title: str, category: str, slack_link: str='') -> dict:
         """
-        Create a new entry. This is a whole new section to work with
+        Create a new entry. This is a whole new entry to work with
         
         :param title: Title of section/challenge
         :type title: str

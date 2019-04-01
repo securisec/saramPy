@@ -39,7 +39,7 @@ class Saram(object):
         self.output: str = None
         self.command_run: str = None
         self.command_error: str = None
-        self.comment = ['saramPy']
+        self.comment = 'saramPy'
         self.file_path: str = None
         self.response: object = None
         self.type: str = None
@@ -97,7 +97,7 @@ class Saram(object):
             self.output = data
             self.type = 'script'
             if comment is not None:
-                self.comment.append(comment)
+                self.comment = comment
             self.command_run = 'Script' if script_name is None else script_name
             return self
 
@@ -124,7 +124,7 @@ class Saram(object):
                 if i == line_number - 2:
                     self.type = 'dump'
                     if comment is not None:
-                        self.comment.append(comment)
+                        self.comment =  comment
                     self.command_run = 'Script dump' if script_name is None else script_name
                     self.output = ''.join(lines)
                     return self
@@ -152,7 +152,7 @@ class Saram(object):
             self.output = data
             self.type = 'file'
             if comment is not None:
-                self.comment.append(comment)
+                self.comment = comment
             self.command_run = 'File' if file_name is None else file_name
             return self
 
@@ -182,7 +182,7 @@ class Saram(object):
         self.command_run = 'Script' if script_name is None else script_name
         self.output = var
         if comment is not None:
-            self.comment.append(comment)
+            self.comment = comment
         return self
 
     def send_to_server(self) -> requests.Response:
@@ -200,6 +200,7 @@ class Saram(object):
             conf = json.loads(f.read())
             self.user = conf['username'] 
             self.apiKey = conf['apiKey']
+            self.avatar = conf.get('avatar', '/static/sarampy.png')
 
         json_payload = {
             'id': str(uuid1()),
@@ -207,7 +208,11 @@ class Saram(object):
             'output': self.output,
             'command': self.command_run,
             'user': self.user,
-            'comment': self.comment,
+            'comment': {
+                'text': self.comment,
+                'username': self.user,
+                'avatar': self.avatar
+            },
             'options': {
                 'marked': 2
             },
@@ -247,7 +252,7 @@ class Saram(object):
         output = delegator.run(command)
         self.type = 'stdout'
         if comment is not None:
-            self.comment.append(comment)
+            self.comment = comment
         self.output = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output.out)
         self.command_error = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output.err)
         self.command_run = command if isinstance(
