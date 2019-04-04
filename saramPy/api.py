@@ -25,13 +25,14 @@ class SaramAPI(Saram):
     >>> saram = SaramAPI(local=True)
     """
 
-    def __init__(self, base_url: str=None, local: bool=False):
-        super().__init__(token=None, base_url=base_url, local=local)
+    def __init__(self):
+        super().__init__(token=None)
         with open(self._conf_file, 'r') as f:
             conf = json.loads(f.read())
             self.username = conf['username'] 
             self.apiKey = conf['apiKey']
             self.avatar = conf.get('avatar', '/static/saramapi.png')
+            self.base_url = conf['base_url']
         self.api_url = f'{self.base_url}api/'
         self._valid_types = ['file', 'stdout', 'script', 'dump', 'tool', 'image']
         self._valid_categories = [
@@ -73,7 +74,7 @@ class SaramAPI(Saram):
         if r.status_code == 200:
             return r.json()
         else:
-            raise StatusNotOk('Could not create section')
+            raise StatusNotOk('Could not get all entries')
 
     def get_entry(self, token: str) -> dict:
         """
