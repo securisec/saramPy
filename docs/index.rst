@@ -25,30 +25,28 @@ Command line
 
 .. code-block:: bash
 
-    saram --init yourApiKey
+    saram --init yourApiKey [--base_url] [--local]
+    # Set --local to set self hosted solution, or --base_url if using anything other than the main app
 
 saramPy docs
 """"""""""""
 
 Command line tool
 =================
-```saramPy``` will install a handy command line tool that ties around the most commonly used methods. 
+```saramPy``` will install a handy command line tool that ties around the most commonly used methods and send them to the server. 
 
 .. code-block:: bash
 
     usage: saram [-h] -t TOKEN [-l] [--comment COMMENT] [-c ... | -f FILE]
-             [--baseurl BASEURL]
 
     optional arguments:
     -h, --help            show this help message and exit
     -t TOKEN, --token TOKEN
                             Token provided in Slack
-    -l, --local           Dev mode. Use localhost
     --comment COMMENT     Add an optional comment
     -c ..., --command ...
                             Command to run inside quotes
     -f FILE, --file FILE  Read a file and send it to the server
-    --baseurl BASEURL
 
 Python module
 =============
@@ -69,6 +67,8 @@ saramPy.api.SaramAPI
 """"""""""""""""""""
 This class exports the full functionality of the Saram API and can be 
 use to build tools and integrations around.
+
+`API docs <https://py.saram.io>`__
 
 .. autoclass:: saramPy.api.SaramAPI
     :members:

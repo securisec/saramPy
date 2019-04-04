@@ -18,7 +18,8 @@ __version__ = get_distribution('saramPy').version
 
 class Saram(object):
     '''
-    The Saram class
+    The Saram class. If FileNotFound excetption, then the .saram.conf 
+    file is missing. Init it correctly. 
 
     >>> # import and instantiate Saram
     >>> from saramPy import Saram
@@ -26,16 +27,22 @@ class Saram(object):
 
     :param token: Token for the Entry/URL. Provided in Slack
     :type token: str
-    :param local: Uses localhost as the host
-    :type local: bool
-    :param base_url: Set the base url
-    :type base_url: str
     :return: Saram object
     :rtype: object
     '''
 
-    def __init__(self, token: str, base_url: str=None,
-                 local: bool=False) -> object:
+    def __init__(self, token: str) -> object:
+        self._conf_file = f'{Path(Path().home())}/.saram.conf'
+        try:
+            with open(self._conf_file, 'r') as f:
+                config = json.loads(f.read())
+                self.user = config['username'] 
+                self.apiKey = config['apiKey']
+                self.avatar = config.get('avatar', '/static/sarampy.png')
+                self.base_url = config['base_url']
+        except:
+            logging.error('Cannot find .saram.conf file')
+            pass
         self.output: str = None
         self.command_run: str = None
         self.command_error: str = None
@@ -44,12 +51,9 @@ class Saram(object):
         self.response: object = None
         self.type: str = None
         self.token: str = token
-        self.local: bool = local
         self.self_file: str = sys.argv[0]
         self._time = str(datetime.utcnow())
-        self.base_url = base_url if base_url else self._check_dev()
         self.url: str = f'{self.base_url}api/{token}'
-        self._conf_file = f'{Path(Path().home())}/.saram.conf'
         
         # function alias
         self.send = self.send_to_server
@@ -59,13 +63,6 @@ class Saram(object):
     def _get_file_name(self, path):
         """Returns the basename from the path"""
         return Path(path).parts[-1]
-
-    def _check_dev(self) -> str:
-        """Returns localhost or default Saram server url"""
-        if self.local:
-            return 'http://localhost:5001/'
-        else:
-            return 'https://saram.securisecctf.com/'
 
     def _token_generator(self, title: str) -> str:
         u = str(uuid1())[0:8]
@@ -196,12 +193,6 @@ class Saram(object):
         :rtype: requests.Response
         '''
 
-        with open(self._conf_file, 'r') as f:
-            conf = json.loads(f.read())
-            self.user = conf['username'] 
-            self.apiKey = conf['apiKey']
-            self.avatar = conf.get('avatar', '/static/sarampy.png')
-
         json_payload = {
             'id': str(uuid1()),
             'type': self.type,
@@ -261,7 +252,7 @@ class Saram(object):
         return self
 
 
-class SaramInit(Saram):
+class SaramInit:
     """
     The class will create the saram.conf file and read 
     values from it from the main Saram class. ```api_key``` 
@@ -271,19 +262,29 @@ class SaramInit(Saram):
     :type token: str
     :param local: Uses localhost as the host
     :type local: bool
-    :param base_url: Set the base url
+    :param base_url: Set the base url. If unset, sets https://app.saram.io/ as base url.
     :type base_url: str
     """
 
     def __init__(self, api_key: str, local: bool=False, base_url: str=None) -> None:
-        super().__init__(None, base_url, local)
         self.api_key = api_key
         self._home_path = Path().home()
+        self.local = local
+        self.base_url = base_url
+        self.saram_url = self._base_url()
         self._conf_file = Path(f'{self._home_path}/.saram.conf')
 
+    def _base_url(self):
+        if self.local:
+            return 'http://localhost:5001/'
+        elif self.base_url is not None:
+            return self.base_url
+        else:
+            return 'https://app.saram.io/'
+    
     def _verify_api_key(self):
         r = requests.post(
-            f'{self.base_url}misc/valid/key',
+            f'{self.saram_url}misc/valid/key',
             json={'key': self.api_key}
         )
         if r.status_code == 200:
@@ -293,6 +294,8 @@ class SaramInit(Saram):
         
     def init(self) -> None:
         creds = self._verify_api_key()
+        creds['base_url'] = self.saram_url
         with open(self._conf_file, 'w') as f:
-            f.write(json.dumps(creds))
+            conf = json.dumps(creds, indent=2)
+            f.write(conf)
         print(f'Saved the conf file to ${self._conf_file}')
