@@ -1,1 +1,6 @@
-{"apiKey": "somesecrettoken", "username": "saramPyUser"}
+{
+  "apiKey": "testkey",
+  "username": "testuser",
+  "avatar": "google.com",
+  "base_url": "http://localhost:5001/"
+}

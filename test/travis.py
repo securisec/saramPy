@@ -8,7 +8,6 @@ def dump(obj):
 
 s = Saram(
     token='Some Token',
-    local=True
 )
 
 a = SaramAPI()
