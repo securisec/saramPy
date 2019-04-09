@@ -14,15 +14,11 @@ class NotValidCategory(Exception):
 class SaramAPI(Saram):
     """
     Class that exposes the full API for Saram. Interits from 
-    saramPy.Saram.
-
-    :param base_url: Set if the base url is neither of the pre-defined ones
-    :type token: str
-    :param local: Set to True to use http://localhost:5001/ as base url
-    :type token: bool
+    saramPy.Saram. This class reads from the local ``.saram.conf`` file 
+    to instialize many of its properties.
 
     >>> from saramPy.api import SaramAPI
-    >>> saram = SaramAPI(local=True)
+    >>> saram = SaramAPI()
     """
 
     def __init__(self):
@@ -337,3 +333,119 @@ class SaramAPI(Saram):
             return r.json()
         else:
             raise StatusNotOk('Could not create a valid token')
+
+    def admin_all_users(self) -> list:
+        """
+        Get an array of all user objects
+        
+        :raises StatusNotOk: Exception
+        :return: Array of user objects
+        :rtype: list
+
+        >>> print(saram.admin_all_users())
+        """
+
+        r = requests.get(f'{self.api_url}admin/allusers', headers=self._headers)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk('Could not get all users')
+
+    def admin_find_user(self, user_id: str) -> dict:
+        """
+        Find a user by user id
+        
+        :param user_id: A valid user id
+        :type user_id: str
+        :raises StatusNotOk: Exception
+        :return: A complete user object
+        :rtype: dict
+
+        >>> saram.admin_find_user('somedemoid')
+        """
+
+        r = requests.get(f'{self.api_url}admin/user?id={user_id}', headers=self._headers)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk('Could not find user')
+
+    def admin_create_user(
+        self, username: str, password: str, 
+        isAdmin: bool=False, avatar: str='/static/logo.png'
+    ) -> dict:
+        """
+        Create a new user
+        
+        :param username: A valid username. Spaces and special characters are stripped
+        :type username: str
+        :param password: A password. Password is stored as a hash
+        :type password: str
+        :param isAdmin: True if the user is an admin, defaults to False
+        :param isAdmin: bool, optional
+        :param avatar: A link to the profile image for the user, defaults to '/static/logo.png'
+        :param avatar: str, optional
+        :raises StatusNotOk: Exception
+        :return: A complete user object
+        :rtype: dict
+        """
+
+        payload = {
+            'username': username,
+            'password': password,
+            'isAdmin': isAdmin,
+            'avatar': avatar
+        }
+        r = requests.post(f'{self.api_url}admin/user', headers=self._headers, json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.text)
+
+    def admin_delete_user(self, user_id: str) -> dict:
+        """
+        Delete a user by user id
+        
+        :param user_id: A valid user id
+        :type user_id: str
+        :raises StatusNotOk: Exception
+        :return: True if deleted
+        :rtype: dict
+
+        >>> saram.admin_delete_user(user_id='somedemoid')
+        """
+
+        payload = {
+            'user_id': user_id
+        }
+        r = requests.delete(f'{self.api_url}admin/user', headers=self._headers, json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+    
+    def admin_update_user(self, user_id: str, **kwargs) -> dict:
+        """
+        Update a users information. Any valid user field can be 
+        updated using this method.
+        
+        :param username: New username to change to
+        :type username: str, optional
+        :param isAdmin: Toggle True or False
+        :param isAdmin: bool, optional
+        :param avatar: A link to the profile image for the user, defaults to '/static/logo.png'
+        :param avatar: str, optional
+        :raises StatusNotOk: Exception
+        :return: A complete user object
+        :rtype: dict
+
+        >>> # This example shows how to change the admin status of a user
+        >>> saram.admin_update_user(user_id='somedemoid', isAdmin=True)
+        """
+        payload = kwargs
+        r = requests.patch(f'{self.api_url}admin/user?id={user_id}'
+            , headers=self._headers, json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
