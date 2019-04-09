@@ -108,7 +108,34 @@ class SaramAPI(Saram):
         if r.status_code == 200:
             return r.json()
         else:
-            raise StatusNotOk(f'Could not delete Status code: {r.status}')
+            raise StatusNotOk(f'Could not delete Status code: {r.text}')
+
+    def update_entry(self, token: str, priority: str='none', description: str=None) -> dict:
+        """
+        Update an entry with varios data points
+        
+        :param token: Valid token for entry
+        :type token: str
+        :param priority: The priority/criticality/status of an enty, defaults to none. Valid values are 'info', 'high', 'medium', 'low', 'critical', 'complete', 'none'
+        :param priority: str, optional
+        :param description: Optional description for the entry, defaults to None
+        :param description: str, optional
+        :raises StatusNotOk: Exception
+        :return: Response oject
+        :rtype: dict
+
+        >>> saram.update_entry('sometoken', priority='high')
+        """
+
+        payload = {
+            'priority': priority,
+            'description': description
+        }
+        r = requests.post(f'{self.api_url}{token}', headers=self._headers, json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(f'Could not update Status code: {r.text}')
 
     def create_new_section(self, token: str, type: str,
         output: str, command: str, comment: str='saramPy'
@@ -449,3 +476,18 @@ class SaramAPI(Saram):
             return r.json()
         else:
             raise StatusNotOk(r.status_code, r.text)
+
+    def admin_get_logs(self) -> list:
+        """
+        Get an arry of all the log objects
+        
+        :raises StatusNotOk: Exception
+        :return: Array of log objects
+        :rtype: list
+        """
+
+        r = requests.get(f'{self.api_url}admin/logs', headers=self._headers)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(f'Could not delete Status code: {r.text}')
