@@ -234,7 +234,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk('Could not delete section')
 
-    def create_new_entry(self, title: str, category: str, slack_link: str='') -> dict:
+    def create_new_entry(self, title: str, category: str) -> dict:
         """
         Create a new entry. This is a whole new entry to work with
         
@@ -242,8 +242,6 @@ class SaramAPI(Saram):
         :type title: str
         :param category: Category of section/challenge
         :type category: str
-        :param slack_link: Slack link, or any other valid reference link, defaults to ''
-        :param slack_link: str, optional
         :raises NotValidCategory: Exception if a vategory is not valid
         :raises StatusNotOk: Exception on fail
         :return: OK response object
@@ -256,7 +254,6 @@ class SaramAPI(Saram):
         payload = {
             'title': title,
             'category': category,
-            'slackLink': slack_link,
             'timeCreate': self._time,
             'data': []
         }
@@ -265,7 +262,7 @@ class SaramAPI(Saram):
         if r.status_code == 200:
             print('Created new entry')
         else:
-            raise StatusNotOk('Could not create entry')
+            raise StatusNotOk(r.text)
 
     def reset_api_key(self, old_apikey: str, username: str) -> dict:
         """
@@ -487,6 +484,21 @@ class SaramAPI(Saram):
         """
 
         r = requests.get(f'{self.api_url}admin/logs', headers=self._headers)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(f'Could not delete Status code: {r.text}')
+
+    def admin_get_status(self) -> list:
+        """
+        Gets the server status as an array of objects
+        
+        :raises StatusNotOk: Exception
+        :return: Array of log objects
+        :rtype: list
+        """
+
+        r = requests.get(f'{self.api_url}admin/status', headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:

@@ -42,7 +42,7 @@ Command line tool
     optional arguments:
     -h, --help            show this help message and exit
     -t TOKEN, --token TOKEN
-                            Token provided in Slack
+                            Token for the entry
     --comment COMMENT     Add an optional comment
     -c ..., --command ...
                             Command to run inside quotes

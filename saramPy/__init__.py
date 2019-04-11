@@ -25,7 +25,7 @@ class Saram(object):
     >>> from saramPy import Saram
     >>> s = Saram(token='token value', user='username')
 
-    :param token: Token for the Entry/URL. Provided in Slack
+    :param token: Token for the Entry/URL.
     :type token: str
     :return: Saram object
     :rtype: object

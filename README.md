@@ -43,7 +43,7 @@ usage: saram [-h] -t TOKEN [-l] [--comment COMMENT] [-c ... | -f FILE]
 optional arguments:
   -h, --help            show this help message and exit
   -t TOKEN, --token TOKEN
-                        Token provided in Slack
+                        Token for the entry
   -l, --local           Dev mode. Use localhost
   --comment COMMENT     Add an optional comment
   -c ..., --command ...

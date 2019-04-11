@@ -20,7 +20,7 @@ def main():
     # main argument parser
     else:
         parse = argparse.ArgumentParser(add_help=True)
-        parse.add_argument('-t', '--token', dest='token', required=True, help='Token provided in Slack')
+        parse.add_argument('-t', '--token', dest='token', required=True, help='Token for the entry')
         parse.add_argument('--comment', dest='comment', default=None, help='Add an optional comment')
         
         group = parse.add_mutually_exclusive_group()
