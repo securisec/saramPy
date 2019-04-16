@@ -9,12 +9,14 @@ import delegator
 from inspect import currentframe
 from pathlib import Path
 from datetime import datetime
-from uuid import uuid1
+from random import choice as rand_choice
+from string import ascii_lowercase, digits
 from pkg_resources import get_distribution
 
 from .modules.exceptions import ServerError
 
 __version__ = get_distribution('saramPy').version
+
 
 class Saram(object):
     '''
@@ -36,7 +38,7 @@ class Saram(object):
         try:
             with open(self._conf_file, 'r') as f:
                 config = json.loads(f.read())
-                self.user = config['username'] 
+                self.user = config['username']
                 self.apiKey = config['apiKey']
                 self.avatar = config.get('avatar', '/static/sarampy.png')
                 self.base_url = config['base_url']
@@ -54,7 +56,7 @@ class Saram(object):
         self.self_file: str = sys.argv[0]
         self._time = str(datetime.utcnow())
         self.url: str = f'{self.base_url}api/{token}'
-        
+
         # function alias
         self.send = self.send_to_server
 
@@ -64,8 +66,11 @@ class Saram(object):
         """Returns the basename from the path"""
         return Path(path).parts[-1]
 
+    def _gen_rand(self):
+        return ''.join(rand_choice(ascii_lowercase + digits) for x in range(8))
+
     def _token_generator(self, title: str) -> str:
-        u = str(uuid1())[0:8]
+        u = self._gen_rand()
         t = '-'.join(re.sub(r'[^a-zA-Z0-9 ]', '', title).split())[0:25]
         logging.debug(f'Token generated: {u}-{t}')
         return f'{u}-{t}'
@@ -82,7 +87,7 @@ class Saram(object):
         :type script_name: str
         :return: Returns Saram object. Access with ```output``` attribute
         :rtype: str
-        
+
         >>> s.script_read_self(script_name="solver.py", comment="Solve pwn challenge")
         >>> s.send() # send the content to the server
         '''
@@ -121,7 +126,7 @@ class Saram(object):
                 if i == line_number - 2:
                     self.type = 'dump'
                     if comment is not None:
-                        self.comment =  comment
+                        self.comment = comment
                     self.command_run = 'Script dump' if script_name is None else script_name
                     self.output = ''.join(lines)
                     return self
@@ -194,7 +199,6 @@ class Saram(object):
         '''
 
         json_payload = {
-            'id': str(uuid1()),
             'type': self.type,
             'output': self.output,
             'command': self.command_run,
@@ -281,7 +285,7 @@ class SaramInit:
             return self.base_url
         else:
             return 'https://app.saram.io/'
-    
+
     def _verify_api_key(self):
         r = requests.post(
             f'{self.saram_url}misc/valid/key',
@@ -290,8 +294,8 @@ class SaramInit:
         if r.status_code == 200:
             return r.json()
         else:
-            raise TypeError('API key is not valid')
-        
+            raise TypeError('Could not authenticate', r.status_code, r.text)
+
     def init(self) -> None:
         creds = self._verify_api_key()
         creds['base_url'] = self.saram_url
