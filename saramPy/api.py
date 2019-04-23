@@ -337,6 +337,30 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
+    def get_report(self, token: str, render: bool=False) -> str:
+        """
+        Generate a markdown report for an entry. Can be 
+        optionally send to render the markdown
+        
+        :param token: A valid token
+        :type token: str
+        :param render: Render?, defaults to False
+        :type render: bool, optional
+        :raises StatusNotOk: Exception on fail
+        :return: Markdown scaffold
+        :rtype: str
+        """
+        if render:
+            render = 'true'
+        else:
+            render = 'false'
+        r = request.get(f'{self.api_url}{token}/report/render={render}',
+                        headers=self._headers)
+        if r.status_code == 200:
+            return r.text
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
     def validate_api_key(self, api_key: str) -> dict:
         """
         Validate and API key and if valid, return the API and assciated username
@@ -483,8 +507,10 @@ class SaramAPI(Saram):
 
         :param username: New username to change to
         :type username: str, optional
-        :param isAdmin: Toggle True or False
+        :param isAdmin: Toggle 'true' or 'false'
         :param isAdmin: bool, optional
+        :param isDisabled: Toggle 'true' or 'false'
+        :param isDisabled: bool, optional
         :param avatar: A link to the profile image for the user, defaults to '/static/logo.png'
         :param avatar: str, optional
         :raises StatusNotOk: Exception
