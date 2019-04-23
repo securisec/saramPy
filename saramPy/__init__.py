@@ -8,7 +8,6 @@ import requests
 import delegator
 from inspect import currentframe
 from pathlib import Path
-from datetime import datetime
 from random import choice as rand_choice
 from string import ascii_lowercase, digits
 from pkg_resources import get_distribution
@@ -54,7 +53,6 @@ class Saram(object):
         self.type: str = None
         self.token: str = token
         self.self_file: str = sys.argv[0]
-        self._time = str(datetime.utcnow())
         self.url: str = f'{self.base_url}api/{token}'
 
         # function alias
@@ -207,11 +205,7 @@ class Saram(object):
                 'text': self.comment,
                 'username': self.user,
                 'avatar': self.avatar
-            },
-            'options': {
-                'marked': 2
-            },
-            'time': str(datetime.utcnow())
+            }
         }
         headers = {
             'x-saram-apikey': self.apiKey,

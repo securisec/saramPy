@@ -172,11 +172,7 @@ class SaramAPI(Saram):
                 'text': comment,
                 'username': self.username,
                 'avatar': self.avatar
-            },
-            'options': {
-                'marked': 2
-            },
-            'time': self._time
+            }
         }
         if type not in self._valid_types:
             raise TypeError(f'Valid types are {self._valid_types}')
@@ -258,9 +254,7 @@ class SaramAPI(Saram):
         token = self._token_generator(title)
         payload = {
             'title': title,
-            'category': category,
-            'timeCreate': self._time,
-            'data': []
+            'category': category
         }
         r = requests.post(f'{self.api_url}create/{token}', headers=self._headers,
                           json=payload)
