@@ -65,8 +65,10 @@ class SaramAPI(Saram):
         :return: Array containing objects of all the entries
         :rtype: list
 
-        >>> entries = saram.get_all_entries()
-        >>> print(entries)
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.get_all_entries()
+        >>> print(s)
         """
 
         r = requests.get(f'{self.api_url}all/entries', headers=self._headers)
@@ -85,7 +87,10 @@ class SaramAPI(Saram):
         :return: object with all entry data
         :rtype: dict
 
-        >>> entry = saram.get_entry(token='sometoken')
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.get_entry(token='080d33e0-demo-title')
+        >>> print(s)
         """
 
         r = requests.get(f'{self.api_url}{token}', headers=self._headers)
@@ -104,7 +109,10 @@ class SaramAPI(Saram):
         :return: OK object
         :rtype: dict
 
-        >>> entry = saram.delete_entry(token='sometoken')
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.delete_entry('080d33e0-demo-title')
+        >>> print(s)
         """
 
         r = requests.delete(f'{self.api_url}{token}', headers=self._headers)
@@ -127,7 +135,14 @@ class SaramAPI(Saram):
         :return: Response oject
         :rtype: dict
 
-        >>> saram.update_entry('sometoken', priority='high')
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.update_entry(
+        >>>     token='080d33e0-demo-title',
+        >>>     description='Some description',
+        >>>     priority='high'
+        >>> )
+        >>> print(s)
         """
 
         payload = {
@@ -161,6 +176,17 @@ class SaramAPI(Saram):
         :raises StatusNotOk: Exception on fail
         :return: OK object
         :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.create_new_section(
+        >>>     token='080d33e0-demo-title',
+        >>>     type='stdout',
+        >>>     output='echo output',
+        >>>     command='echo',
+        >>>     comment='Demo comment'
+        >>> )
+        >>> print(s)
         """
 
         payload = {
@@ -197,7 +223,14 @@ class SaramAPI(Saram):
         :return: OK object
         :rtype: dict
 
-        >>> entry = saram.add_comment(token='sometoken', dataid='long_data_id', comment='helpful comment')
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.add_comment(
+        >>>     token='080d33e0-demo-title',
+        >>>     dataid='bfe02810-656d-11e9-be3a-05d3364ece32',
+        >>>     comment='Additional comment'
+        >>> )
+        >>> print(s)
         """
 
         payload = {
@@ -225,6 +258,14 @@ class SaramAPI(Saram):
         :raises StatusNotOk: Exception on fail
         :return: OK object
         :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.delete_section(
+        >>>     token='080d33e0-demo-title',
+        >>>     dataid='12f45080-656e-11e9-be3a-05d3364ece32'
+        >>> )
+        >>> print(s)
         """
 
         r = requests.delete(
@@ -246,6 +287,14 @@ class SaramAPI(Saram):
         :raises StatusNotOk: Exception on fail
         :return: OK response object
         :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.create_new_entry(
+        >>>     title='Some demo title',
+        >>>     category='ios'
+        >>> )
+        >>> print(s)
         """
 
         if category not in self._valid_categories:
@@ -274,6 +323,14 @@ class SaramAPI(Saram):
         :raises StatusNotOk: Exception on fail
         :return: object containing new API key
         :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.reset_api_key(
+        >>>     old_apikey='oldSecretApiKey',
+        >>>     username='demoUser'
+        >>> )
+        >>> print(s)
         """
 
         payload = {
@@ -296,6 +353,13 @@ class SaramAPI(Saram):
         :raises StatusNotOk: Exception on fail
         :return: object containing new API key
         :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.reset_password(
+        >>>     password='newGoodPassword'
+        >>> )
+        >>> print(s)
         """
 
         payload = {
@@ -323,6 +387,15 @@ class SaramAPI(Saram):
         :raises StatusNotOk: Exception on fail
         :return: object with both old and new usernames
         :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.change_username(
+        >>>     api_key='secretApiKey',
+        >>>     old_username='oldUserName',
+        >>>     new_username='newUserName'
+        >>> )
+        >>> print(s)
         """
 
         payload = {
@@ -337,11 +410,165 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
+    def get_all_chat(self, token: str) -> dict:
+        """
+        Get all chat messages associated with an entry
+
+        :param token: A valid token
+        :type token: str
+        :raises StatusNotOk: Exception on fail
+        :return: Array of all chat objects
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.get_all_chat(
+        >>>     token='ef3ace10-test'
+        >>> )
+        >>> print(s)
+        """
+
+        r = requests.get(f'{self.api_url}{token}/chat',
+                         headers=self._headers)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def post_chat_message(self, token: str, message: str) -> dict:
+        """
+        Post a chat message to an entry
+
+        :param token: A valid entry token
+        :type token: str
+        :param message: A valid message
+        :type message: str
+        :raises StatusNotOk: Exception on fail
+        :return: Response object
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.post_chat_message(
+        >>>     token='ef3ace10-test',
+        >>>     message='Message from Py'
+        >>> )
+        >>> print(s)
+        """
+        payload = {
+            'username': self.username,
+            'avatar': self.avatar
+        }
+        r = requests.post(f'{self.api_url}{token}/chat',
+                          headers=self._headers, json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def delete_chat_message(self, token: str, chat_id: str) -> dict:
+        """
+        Delete a chat message from an entry
+
+        :param token: A valid entry token
+        :type token: str
+        :param chat_id: A valid chat Id
+        :type chat_id: str
+        :raises StatusNotOk: Exception on fail
+        :return: Response object
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.delete_chat_message(
+        >>>     token='ef3ace10-test',
+        >>>     chat_id='5cc0e3baecfc8a16279b4756'
+        >>> )
+        >>> print(s)
+        """
+        payload = {
+            'chatId': chat_id
+        }
+        r = requests.delete(f'{self.api_url}{token}/chat',
+                            headers=self._headers, json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def update_chat_message(self, token: str, chat_id: str, message: str) -> dict:
+        """
+        Update a chat message from an entry
+
+        :param token: A valid entry token
+        :type token: str
+        :param chat_id: A valid chat Id
+        :type chat_id: str
+        :param message: A valid message
+        :type message: str
+        :raises StatusNotOk: Exception on fail
+        :return: Response object
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.update_chat_message(
+        >>>     token='ef3ace10-test',
+        >>>     chat_id='5cc0e3baecfc8a16279b4756'
+        >>>     message='Some message to update with'
+        >>> )
+        >>> print(s)
+        """
+        payload = {
+            'chatId': chat_id,
+            'message': message
+        }
+        r = requests.patch(f'{self.api_url}{token}/chat',
+                            headers=self._headers, json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def delete_comment(self, token: str, dataid: str, commentId: str) -> dict:
+        """
+        Delete a comment from a section
+
+        :param token: A valid entry token
+        :type token: str
+        :param dataid: A valid section data id
+        :type dataid: str
+        :param commentId: A valid comment id
+        :type commentId: str
+        :raises StatusNotOk: Exception on fail
+        :return: object with response
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.delete_comment(
+        >>>     token='ef3ace10-test',
+        >>>     dataid='f12489f0-6619-11e9-a6dd-df81fb7d1eca',
+        >>>     commentId='5cbfafd1038ef8ee06c18a3c'
+        >>> )
+        >>> print(s)
+        """
+
+        payload = {
+            'commentId': commentId
+        }
+        r = requests.delete(f'{self.api_url}{token}/{dataid}/comment',
+                            headers=self._headers, json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
     def get_report(self, token: str, render: bool=False) -> str:
         """
         Generate a markdown report for an entry. Can be 
         optionally send to render the markdown
-        
+
         :param token: A valid token
         :type token: str
         :param render: Render?, defaults to False
@@ -349,6 +576,13 @@ class SaramAPI(Saram):
         :raises StatusNotOk: Exception on fail
         :return: Markdown scaffold
         :rtype: str
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.get_report(
+        >>>     token='someDemotoken'
+        >>> )
+        >>> print(s)
         """
         if render:
             render = 'true'
@@ -371,7 +605,10 @@ class SaramAPI(Saram):
         :return: dict containing the valid API key and associated username
         :rtype: dict
 
-        >>> entry = saram.validate_api_key(api_key='secretapikey')
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.validate_api_key('secretApiKey')
+        >>> print(s)
         """
 
         payload = {
@@ -394,7 +631,12 @@ class SaramAPI(Saram):
         :return: reponse dictionary object
         :rtype: dict
 
-        >>> entry = saram.get_valid_token(title='Title of some challenge')
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.get_valid_token(
+        >>>     title='Some demo title'
+        >>> )
+        >>> print(s)
         """
 
         payload = {
@@ -414,7 +656,10 @@ class SaramAPI(Saram):
         :return: Array of user objects
         :rtype: list
 
-        >>> print(saram.admin_all_users())
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.admin_all_users()
+        >>> print(s)
         """
 
         r = requests.get(f'{self.api_url}admin/allusers',
@@ -434,7 +679,10 @@ class SaramAPI(Saram):
         :return: A complete user object
         :rtype: dict
 
-        >>> saram.admin_find_user('somedemoid')
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.admin_find_user('1')
+        >>> print(s)
         """
 
         r = requests.get(
@@ -462,6 +710,16 @@ class SaramAPI(Saram):
         :raises StatusNotOk: Exception
         :return: A complete user object
         :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.admin_create_user(
+        >>>     username='someUserName',
+        >>>     password='someSecretPassword',
+        >>>     isAdmin=False,
+        >>>     avatar='http://pstu.ac.bd/images/defaults/default.png'
+        >>> )
+        >>> print(s)
         """
 
         payload = {
@@ -487,7 +745,12 @@ class SaramAPI(Saram):
         :return: True if deleted
         :rtype: dict
 
-        >>> saram.admin_delete_user(user_id='somedemoid')
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.admin_delete_user(
+        >>>     user_id='5cbf14d11beae8c5e3bdc695'
+        >>> )
+        >>> print(s)
         """
 
         payload = {
@@ -518,7 +781,14 @@ class SaramAPI(Saram):
         :rtype: dict
 
         >>> # This example shows how to change the admin status of a user
-        >>> saram.admin_update_user(user_id='somedemoid', isAdmin=True)
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.admin_update_user(
+        >>>     user_id='2',
+        >>>     isAdmin='false',
+        >>>     isDisabled='false'
+        >>> )
+        >>> print(s)
         """
         payload = kwargs
         r = requests.patch(
@@ -535,6 +805,11 @@ class SaramAPI(Saram):
         :raises StatusNotOk: Exception
         :return: Array of log objects
         :rtype: list
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.admin_get_logs()
+        >>> print(s)
         """
 
         r = requests.get(f'{self.api_url}admin/logs', headers=self._headers)
@@ -550,6 +825,11 @@ class SaramAPI(Saram):
         :raises StatusNotOk: Exception
         :return: Array of log objects
         :rtype: list
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.admin_get_status()
+        >>> print(s)
         """
 
         r = requests.get(f'{self.api_url}admin/status', headers=self._headers)
