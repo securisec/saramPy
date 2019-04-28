@@ -9,7 +9,7 @@ script:
 - cp ./test/api.json ~/.saram.conf
 - python -V
 - python ./test/travis.py
-- saram -h
+- saramPy -h
 deploy:
   provider: pypi
   user: securisec
