@@ -210,6 +210,7 @@ class Saram(object):
         headers = {
             'x-saram-apikey': self.apiKey,
             'x-saram-username': self.user,
+            'x-saram-avatar': self.avatar
         }
         r = requests.patch(self.url, json=json_payload, headers=headers)
         self.response = r

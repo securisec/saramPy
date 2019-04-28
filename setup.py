@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 from os import path
 
-__version__ = '1.1.9'
+__version__ = '1.1.10'
 __author__ = 'Hapsida @securisec'
 
 def read_requirements():
@@ -28,7 +28,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'saram = saramPy.__main__:main'
+            'saramPy = saramPy.__main__:main'
         ]
     }
 )

@@ -54,7 +54,8 @@ class SaramAPI(Saram):
         ]
         self._headers = {
             'x-saram-apikey': self.apiKey,
-            'x-saram-username': self.username
+            'x-saram-username': self.username,
+            'x-saram-avatar': self.avatar
         }
 
     def get_all_entries(self) -> list:
@@ -410,6 +411,35 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
+    def change_avatar(self, avatar: str) -> dict:
+        """
+        Change the username to a new username
+
+        :param avatar: Valid avatar url. Only built in avatars are allowed. A valid 
+        url is ``/static/avatar/[1-9].png``
+        :type avatar: str
+        :raises StatusNotOk: Exception on fail
+        :return: object with both old and new usernames
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.change_avatar(
+        >>>     avatar='/static/avatar/2.png'
+        >>> )
+        >>> print(s)
+        """
+
+        payload = {
+            'avatar': avatar
+        }
+        r = requests.post(f'{self.api_url}reset/avatar',
+                          headers=self._headers, json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
     def get_all_chat(self, token: str) -> dict:
         """
         Get all chat messages associated with an entry
@@ -457,7 +487,7 @@ class SaramAPI(Saram):
         """
         payload = {
             'username': self.username,
-            'avatar': self.avatar
+            'message': message
         }
         r = requests.post(f'{self.api_url}{token}/chat',
                           headers=self._headers, json=payload)
@@ -487,7 +517,7 @@ class SaramAPI(Saram):
         >>> print(s)
         """
         payload = {
-            'chatId': chat_id
+            'chatId': chat_id,
         }
         r = requests.delete(f'{self.api_url}{token}/chat',
                             headers=self._headers, json=payload)
@@ -521,10 +551,10 @@ class SaramAPI(Saram):
         """
         payload = {
             'chatId': chat_id,
-            'message': message
+            'message': message,
         }
         r = requests.patch(f'{self.api_url}{token}/chat',
-                            headers=self._headers, json=payload)
+                           headers=self._headers, json=payload)
         if r.status_code == 200:
             return r.json()
         else:
