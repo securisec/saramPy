@@ -58,7 +58,7 @@ class SaramAPI(Saram):
             'x-saram-avatar': self.avatar
         }
 
-    def get_all_entries(self) -> list:
+    def getAllEntries(self) -> list:
         """
         Gets an array of all the valid entries
 
@@ -68,7 +68,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.get_all_entries()
+        >>> s = saram.getAllEntries()
         >>> print(s)
         """
 
@@ -78,7 +78,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def get_entry(self, token: str) -> dict:
+    def getEntry(self, token: str) -> dict:
         """
         Gets all the data associated with a single entry
 
@@ -90,7 +90,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.get_entry(token='080d33e0-demo-title')
+        >>> s = saram.getEntry(token='080d33e0-demo-title')
         >>> print(s)
         """
 
@@ -100,7 +100,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def delete_entry(self, token: str) -> dict:
+    def deleteEntry(self, token: str) -> dict:
         """
         Delete an entry entirely
 
@@ -112,7 +112,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.delete_entry('080d33e0-demo-title')
+        >>> s = saram.deleteEntry('080d33e0-demo-title')
         >>> print(s)
         """
 
@@ -122,14 +122,12 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def update_entry(self, token: str, priority: str='none', description: str=None) -> dict:
+    def entryDescription(self, token: str, description: str=None) -> dict:
         """
-        Update an entry with varios data points
+        Add or update the description text for an entry
 
         :param token: Valid token for entry
         :type token: str
-        :param priority: The priority/criticality/status of an enty, defaults to none. Valid values are 'info', 'high', 'medium', 'low', 'critical', 'complete', 'none'
-        :param priority: str, optional
         :param description: Optional description for the entry, defaults to None
         :param description: str, optional
         :raises StatusNotOk: Exception
@@ -138,16 +136,14 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.update_entry(
+        >>> s = saram.entryDescription(
         >>>     token='080d33e0-demo-title',
         >>>     description='Some description',
-        >>>     priority='high'
         >>> )
         >>> print(s)
         """
 
         payload = {
-            'priority': priority,
             'description': description
         }
         r = requests.post(f'{self.api_url}{token}',
@@ -157,9 +153,75 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def create_new_section(self, token: str, type: str,
-                           output: str, command: str, comment: str='saramPy'
-                           ) -> dict:
+    def entryPriority(self, token: str, priority: str='none') -> dict:
+        """
+        Add or update the priority of an entry. 
+
+        :param token: Valid token for entry
+        :type token: str
+        :param priority: The priority/criticality/status of an enty, defaults to none. Valid values are 'info', 'high', 'medium', 'low', 'critical', 'complete', 'none'
+        :param priority: str, optional
+        :raises StatusNotOk: Exception
+        :return: Response oject
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.entryPriority(
+        >>>     token='080d33e0-demo-title',
+        >>>     priority='high',
+        >>> )
+        >>> print(s)
+        """
+
+        payload = {
+            'priority': priority
+        }
+        r = requests.post(f'{self.api_url}{token}',
+                          headers=self._headers, json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def entryNotice(self, token: str, message: str, notice_type: str='info') -> dict:
+        """
+        Add or update a notice message for an entry
+
+        :param token: Valid token for entry
+        :type token: str
+        :param message: The message for the notice
+        :type message: str
+        :param notice_type: The severity level of the notice, defaults to info. Valid values are 'success', 'info', 'warning', 'error'
+        :param notice_type: str, optional
+        :raises StatusNotOk: Exception
+        :return: Response oject
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.entryNotice(
+        >>>     token='080d33e0-demo-title',
+        >>>     notice_type='success',
+        >>>     message='Some notice message',
+        >>> )
+        >>> print(s)
+        """
+
+        payload = {
+            'notice_type': notice_type,
+            'message': message
+        }
+        r = requests.post(f'{self.api_url}{token}',
+                          headers=self._headers, json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def createNewSection(self, token: str, type: str,
+                         output: str, command: str, comment: str='saramPy'
+                         ) -> dict:
         """
         Create a new section. This will add to the existing entry.
 
@@ -180,7 +242,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.create_new_section(
+        >>> s = saram.createNewSection(
         >>>     token='080d33e0-demo-title',
         >>>     type='stdout',
         >>>     output='echo output',
@@ -210,7 +272,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def add_comment(self, token: str, dataid: str, comment: str) -> dict:
+    def addComment(self, token: str, dataid: str, comment: str) -> dict:
         """
         Add a comment to a section.
 
@@ -226,7 +288,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.add_comment(
+        >>> s = saram.addComment(
         >>>     token='080d33e0-demo-title',
         >>>     dataid='bfe02810-656d-11e9-be3a-05d3364ece32',
         >>>     comment='Additional comment'
@@ -248,7 +310,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def delete_section(self, token: str, dataid: str) -> dict:
+    def deleteSection(self, token: str, dataid: str) -> dict:
         """
         Delete a section. This will delete a single section in an entry
 
@@ -262,7 +324,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.delete_section(
+        >>> s = saram.deleteSection(
         >>>     token='080d33e0-demo-title',
         >>>     dataid='12f45080-656e-11e9-be3a-05d3364ece32'
         >>> )
@@ -276,7 +338,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def create_new_entry(self, title: str, category: str) -> dict:
+    def createNewEntry(self, title: str, category: str) -> dict:
         """
         Create a new entry. This is a whole new entry to work with
 
@@ -291,7 +353,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.create_new_entry(
+        >>> s = saram.createNewEntry(
         >>>     title='Some demo title',
         >>>     category='ios'
         >>> )
@@ -313,7 +375,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def reset_api_key(self, old_apikey: str, username: str) -> dict:
+    def resetApiKey(self, old_apikey: str, username: str) -> dict:
         """
         Reset the API key
 
@@ -327,7 +389,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.reset_api_key(
+        >>> s = saram.resetApiKey(
         >>>     old_apikey='oldSecretApiKey',
         >>>     username='demoUser'
         >>> )
@@ -345,7 +407,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def reset_password(self, password: str) -> dict:
+    def resetPassword(self, password: str) -> dict:
         """
         Reset password
 
@@ -357,7 +419,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.reset_password(
+        >>> s = saram.resetPassword(
         >>>     password='newGoodPassword'
         >>> )
         >>> print(s)
@@ -375,7 +437,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def change_username(self, api_key: str, old_username: str, new_username: str) -> dict:
+    def changeUsername(self, api_key: str, old_username: str, new_username: str) -> dict:
         """
         Change the username to a new username
 
@@ -391,7 +453,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.change_username(
+        >>> s = saram.changeUsername(
         >>>     api_key='secretApiKey',
         >>>     old_username='oldUserName',
         >>>     new_username='newUserName'
@@ -411,7 +473,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def change_avatar(self, avatar: str) -> dict:
+    def changeAvatar(self, avatar: str) -> dict:
         """
         Change the username to a new username
 
@@ -424,7 +486,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.change_avatar(
+        >>> s = saram.changeAvatar(
         >>>     avatar='/static/avatar/2.png'
         >>> )
         >>> print(s)
@@ -440,7 +502,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def get_all_chat(self, token: str) -> dict:
+    def getAllChat(self, token: str) -> dict:
         """
         Get all chat messages associated with an entry
 
@@ -452,7 +514,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.get_all_chat(
+        >>> s = saram.getAllChat(
         >>>     token='ef3ace10-test'
         >>> )
         >>> print(s)
@@ -465,7 +527,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def post_chat_message(self, token: str, message: str) -> dict:
+    def postChatMessage(self, token: str, message: str) -> dict:
         """
         Post a chat message to an entry
 
@@ -479,7 +541,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.post_chat_message(
+        >>> s = saram.postChatMessage(
         >>>     token='ef3ace10-test',
         >>>     message='Message from Py'
         >>> )
@@ -496,7 +558,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def delete_chat_message(self, token: str, chat_id: str) -> dict:
+    def deleteChatMessage(self, token: str, chat_id: str) -> dict:
         """
         Delete a chat message from an entry
 
@@ -510,7 +572,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.delete_chat_message(
+        >>> s = saram.deleteChatMessage(
         >>>     token='ef3ace10-test',
         >>>     chat_id='5cc0e3baecfc8a16279b4756'
         >>> )
@@ -526,7 +588,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def update_chat_message(self, token: str, chat_id: str, message: str) -> dict:
+    def updateChatMessage(self, token: str, chat_id: str, message: str) -> dict:
         """
         Update a chat message from an entry
 
@@ -542,7 +604,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.update_chat_message(
+        >>> s = saram.updateChatMessage(
         >>>     token='ef3ace10-test',
         >>>     chat_id='5cc0e3baecfc8a16279b4756'
         >>>     message='Some message to update with'
@@ -560,7 +622,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def delete_comment(self, token: str, dataid: str, commentId: str) -> dict:
+    def deleteComment(self, token: str, dataid: str, commentId: str) -> dict:
         """
         Delete a comment from a section
 
@@ -576,7 +638,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.delete_comment(
+        >>> s = saram.deleteComment(
         >>>     token='ef3ace10-test',
         >>>     dataid='f12489f0-6619-11e9-a6dd-df81fb7d1eca',
         >>>     commentId='5cbfafd1038ef8ee06c18a3c'
@@ -594,7 +656,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def get_report(self, token: str, render: bool=False) -> str:
+    def getReport(self, token: str, render: bool=False) -> str:
         """
         Generate a markdown report for an entry. Can be 
         optionally send to render the markdown
@@ -609,7 +671,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.get_report(
+        >>> s = saram.getReport(
         >>>     token='someDemotoken'
         >>> )
         >>> print(s)
@@ -625,7 +687,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def validate_api_key(self, api_key: str) -> dict:
+    def validateApiKey(self, api_key: str) -> dict:
         """
         Validate and API key and if valid, return the API and assciated username
 
@@ -637,7 +699,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.validate_api_key('secretApiKey')
+        >>> s = saram.validateApiKey('secretApiKey')
         >>> print(s)
         """
 
@@ -650,7 +712,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def get_valid_token(self, title: str) -> dict:
+    def getValidToken(self, title: str) -> dict:
         """
         Supply a title, and get a valid token back. This is useful when 
         testing token creation, or when working with other API endpoints.
@@ -663,7 +725,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.get_valid_token(
+        >>> s = saram.getValidToken(
         >>>     title='Some demo title'
         >>> )
         >>> print(s)
@@ -678,7 +740,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def admin_all_users(self) -> list:
+    def adminAllUsers(self) -> list:
         """
         Get an array of all user objects
 
@@ -688,7 +750,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.admin_all_users()
+        >>> s = saram.adminAllUsers()
         >>> print(s)
         """
 
@@ -699,7 +761,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def admin_find_user(self, user_id: str) -> dict:
+    def adminFindUser(self, user_id: str) -> dict:
         """
         Find a user by user id
 
@@ -711,7 +773,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.admin_find_user('1')
+        >>> s = saram.adminFindUser('1')
         >>> print(s)
         """
 
@@ -722,7 +784,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def admin_create_user(
+    def adminCreateUser(
         self, username: str, password: str,
         isAdmin: bool=False, avatar: str='/static/logo.png'
     ) -> dict:
@@ -743,7 +805,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.admin_create_user(
+        >>> s = saram.adminCreateUser(
         >>>     username='someUserName',
         >>>     password='someSecretPassword',
         >>>     isAdmin=False,
@@ -765,7 +827,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def admin_delete_user(self, user_id: str) -> dict:
+    def adminDeleteUser(self, user_id: str) -> dict:
         """
         Delete a user by user id
 
@@ -777,7 +839,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.admin_delete_user(
+        >>> s = saram.adminDeleteUser(
         >>>     user_id='5cbf14d11beae8c5e3bdc695'
         >>> )
         >>> print(s)
@@ -793,7 +855,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def admin_update_user(self, user_id: str, **kwargs) -> dict:
+    def adminUpdateUser(self, user_id: str, **kwargs) -> dict:
         """
         Update a users information. Any valid user field can be 
         updated using this method.
@@ -813,7 +875,7 @@ class SaramAPI(Saram):
         >>> # This example shows how to change the admin status of a user
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.admin_update_user(
+        >>> s = saram.adminUpdateUser(
         >>>     user_id='2',
         >>>     isAdmin='false',
         >>>     isDisabled='false'
@@ -828,7 +890,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def admin_get_logs(self) -> list:
+    def adminGetLogs(self) -> list:
         """
         Get an arry of all the log objects
 
@@ -838,7 +900,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.admin_get_logs()
+        >>> s = saram.adminGetLogs()
         >>> print(s)
         """
 
@@ -848,7 +910,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def admin_get_status(self) -> list:
+    def adminGetStatus(self) -> list:
         """
         Gets the server status as an array of objects
 
@@ -858,7 +920,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.admin_get_status()
+        >>> s = saram.adminGetStatus()
         >>> print(s)
         """
 
