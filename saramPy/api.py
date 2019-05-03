@@ -122,7 +122,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def entryDescription(self, token: str, description: str=None) -> dict:
+    def entryAddDescription(self, token: str, description: str=None) -> dict:
         """
         Add or update the description text for an entry
 
@@ -136,7 +136,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.entryDescription(
+        >>> s = saram.entryAddDescription(
         >>>     token='080d33e0-demo-title',
         >>>     description='Some description',
         >>> )
@@ -146,14 +146,38 @@ class SaramAPI(Saram):
         payload = {
             'description': description
         }
-        r = requests.post(f'{self.api_url}{token}',
+        r = requests.post(f'{self.api_url}{token}/description',
                           headers=self._headers, json=payload)
         if r.status_code == 200:
             return r.json()
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def entryPriority(self, token: str, priority: str='none') -> dict:
+    def entryDeleteDescription(self, token: str) ->dict:
+        """
+        Delete a description from an entry
+        
+        :param token: A valid Saram entry token
+        :type token: str
+        :raises StatusNotOk: Exception
+        :return: Response object
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.entryDeleteDescription(
+        >>>     token='080d33e0-demo-title'
+        >>> )
+        >>> print(s)
+        """
+        r = requests.delete(
+            f'{self.api_url}{token}/description', headers=self._headers)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def entryAddPriority(self, token: str, priority: str='none') -> dict:
         """
         Add or update the priority of an entry. 
 
@@ -167,7 +191,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.entryPriority(
+        >>> s = saram.entryAddPriority(
         >>>     token='080d33e0-demo-title',
         >>>     priority='high',
         >>> )
@@ -177,14 +201,38 @@ class SaramAPI(Saram):
         payload = {
             'priority': priority
         }
-        r = requests.post(f'{self.api_url}{token}',
+        r = requests.post(f'{self.api_url}{token}/priority',
                           headers=self._headers, json=payload)
         if r.status_code == 200:
             return r.json()
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def entryNotice(self, token: str, message: str, notice_type: str='info') -> dict:
+    def entryDeletePriority(self, token: str) ->dict:
+        """
+        Delete a priority from an entry
+        
+        :param token: A valid Saram entry token
+        :type token: str
+        :raises StatusNotOk: Exception
+        :return: Response object
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.entryDeletePriority(
+        >>>     token='080d33e0-demo-title'
+        >>> )
+        >>> print(s)
+        """
+        r = requests.delete(
+            f'{self.api_url}{token}/priority', headers=self._headers)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def entryAddNotice(self, token: str, message: str, notice_type: str='info') -> dict:
         """
         Add or update a notice message for an entry
 
@@ -200,7 +248,7 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.entryNotice(
+        >>> s = saram.entryAddNotice(
         >>>     token='080d33e0-demo-title',
         >>>     notice_type='success',
         >>>     message='Some notice message',
@@ -209,11 +257,35 @@ class SaramAPI(Saram):
         """
 
         payload = {
-            'notice_type': notice_type,
+            'type': notice_type,
             'message': message
         }
-        r = requests.post(f'{self.api_url}{token}',
+        r = requests.post(f'{self.api_url}{token}/notice',
                           headers=self._headers, json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def entryDeleteNotice(self, token: str) ->dict:
+        """
+        Delete a notice from an entry
+        
+        :param token: A valid Saram entry token
+        :type token: str
+        :raises StatusNotOk: Exception
+        :return: Response object
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.entryDeleteNotice(
+        >>>     token='080d33e0-demo-title'
+        >>> )
+        >>> print(s)
+        """
+        r = requests.delete(
+            f'{self.api_url}{token}/notice', headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
@@ -905,6 +977,26 @@ class SaramAPI(Saram):
         """
 
         r = requests.get(f'{self.api_url}admin/logs', headers=self._headers)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def adminDeleteLogs(self) -> list:
+        """
+        Delete all logs
+
+        :raises StatusNotOk: Exception
+        :return: OK object
+        :rtype: object
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.adminDeleteLogs()
+        >>> print(s)
+        """
+
+        r = requests.delete(f'{self.api_url}admin/logs', headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
