@@ -156,7 +156,7 @@ class SaramAPI(Saram):
     def entryDeleteDescription(self, token: str) ->dict:
         """
         Delete a description from an entry
-        
+
         :param token: A valid Saram entry token
         :type token: str
         :raises StatusNotOk: Exception
@@ -211,7 +211,7 @@ class SaramAPI(Saram):
     def entryDeletePriority(self, token: str) ->dict:
         """
         Delete a priority from an entry
-        
+
         :param token: A valid Saram entry token
         :type token: str
         :raises StatusNotOk: Exception
@@ -270,7 +270,7 @@ class SaramAPI(Saram):
     def entryDeleteNotice(self, token: str) ->dict:
         """
         Delete a notice from an entry
-        
+
         :param token: A valid Saram entry token
         :type token: str
         :raises StatusNotOk: Exception
@@ -550,7 +550,7 @@ class SaramAPI(Saram):
         Change the username to a new username
 
         :param avatar: Valid avatar url. Only built in avatars are allowed. A valid 
-        url is ``/static/avatar/[1-9].png``
+        url is ``/static/avatar/[1-20].png``
         :type avatar: str
         :raises StatusNotOk: Exception on fail
         :return: object with both old and new usernames
@@ -728,6 +728,38 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
+    def imageUploadImgbb(self, token: str, dataid: str) -> dict:
+        """
+        Delete a comment from a section
+
+        :param token: A valid entry token
+        :type token: str
+        :param dataid: A valid section data id
+        :type dataid: str
+        :raises StatusNotOk: Exception on fail
+        :return: object with response
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.imageUploadImgbb(
+        >>>     token='ef3ace10-test',
+        >>>     dataid='f12489f0-6619-11e9-a6dd-df81fb7d1eca'
+        >>> )
+        >>> print(s)
+        """
+
+        payload = {
+            'token': token,
+            'dataid': dataid
+        }
+        r = requests.post(f'{self.api_url}image/imgbb',
+                          headers=self._headers, json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
     def getReport(self, token: str, render: bool=False) -> str:
         """
         Generate a markdown report for an entry. Can be 
@@ -779,6 +811,26 @@ class SaramAPI(Saram):
             'key': api_key
         }
         r = requests.post(f'{self.base_url}misc/valid/key', json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def getEnabledAuthModules(self, api_key: str) -> dict:
+        """
+        Get an array of all enabled auth modules for Saram
+
+        :raises StatusNotOk: Exception
+        :return: dict containing the valid API key and associated username
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.getEnabledAuthModules()
+        >>> print(s)
+        """
+
+        r = requests.get(f'{self.base_url}misc/auth/modules')
         if r.status_code == 200:
             return r.json()
         else:
@@ -1017,6 +1069,26 @@ class SaramAPI(Saram):
         """
 
         r = requests.get(f'{self.api_url}admin/status', headers=self._headers)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def adminGetSentryErrors(self) -> list:
+        """
+        Get an array of all unresolved errors in Sentry if enabled
+
+        :raises StatusNotOk: Exception
+        :return: Array of log objects
+        :rtype: list
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.adminGetSentryErrors()
+        >>> print(s)
+        """
+
+        r = requests.get(f'{self.api_url}admin/errors', headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:

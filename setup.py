@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 from os import path
 
-__version__ = '1.1.12'
+__version__ = '1.1.13'
 __author__ = 'Hapsida @securisec'
 
 def read_requirements():
