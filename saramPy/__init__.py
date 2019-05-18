@@ -277,6 +277,8 @@ class SaramInit:
         if self.local:
             return 'http://localhost:5001/'
         elif self.base_url is not None:
+            if not self.base_url.endswith('/'):
+                return self.base_url + '/'
             return self.base_url
         else:
             return 'https://app.saram.io/'

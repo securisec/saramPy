@@ -549,8 +549,7 @@ class SaramAPI(Saram):
         """
         Change the username to a new username
 
-        :param avatar: Valid avatar url. Only built in avatars are allowed. A valid 
-        url is ``/static/avatar/[1-20].png``
+        :param avatar: Valid avatar url. Only built in avatars are allowed. A valid url is ``/static/avatar/[1-20].png``
         :type avatar: str
         :raises StatusNotOk: Exception on fail
         :return: object with both old and new usernames
