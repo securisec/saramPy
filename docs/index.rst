@@ -25,7 +25,7 @@ Command line
 
 .. code-block:: bash
 
-    saram --init yourApiKey [--base_url] [--local]
+    saramPy --init yourApiKey [--base_url] [--local]
     # Set --local to set self hosted solution, or --base_url if using anything other than the main app
 
 saramPy docs
@@ -37,7 +37,7 @@ Command line tool
 
 .. code-block:: bash
 
-    usage: saram [-h] -t TOKEN [-l] [--comment COMMENT] [-c ... | -f FILE]
+    usage: saramPy [-h] -t TOKEN [--comment COMMENT] [-c ... | -f FILE]
 
     optional arguments:
     -h, --help            show this help message and exit

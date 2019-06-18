@@ -11,7 +11,7 @@ def main():
     one = parse.add_mutually_exclusive_group()
     one.add_argument('-l', '--local', dest='local',
                      action='store_true', help='Dev mode. Use localhost')
-    one.add_argument('--baseurl', dest='baseurl', default=None)
+    one.add_argument('--base_url', dest='baseurl', default=None)
     options, parser = parse.parse_known_args()
 
     # seperate arugment parser for init
