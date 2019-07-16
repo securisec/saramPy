@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import os
 from pathlib import Path
 from saramPy import Saram, SaramInit
 
@@ -24,7 +25,7 @@ def main():
     else:
         parse = argparse.ArgumentParser(add_help=True)
         parse.add_argument('-t', '--token', dest='token',
-                           required=True, help='Token for the entry')
+                           help='Token for the entry', default=os.environ.get('SARAM_TOKEN'))
         parse.add_argument('--comment', dest='comment',
                            default=None, help='Add an optional comment')
 
@@ -35,6 +36,20 @@ def main():
                            help='Read a file and send it to the server')
 
         args = parse.parse_args()
+
+        env_token = os.environ.get('SARAM_TOKEN')
+        
+        if env_token is not None:
+            try:
+                input(f'>>> Using {env_token} as the token.')
+                token = env_token
+            except KeyboardInterrupt:
+                print('\n\nExit')
+                exit()
+        elif args.token is not None:
+            token = args.token
+        else:
+            raise AttributeError('A token is required')
 
         p = Saram(args.token)
 

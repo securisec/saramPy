@@ -1,4 +1,5 @@
 from saramPy import Saram
+import sys
 import json
 import requests
 
@@ -24,6 +25,8 @@ class SaramAPI(Saram):
     """
 
     def __init__(self):
+        if sys.version_info.major != 3:
+            raise TypeError('SaramPy is designed to run on Python 3')
         super().__init__(token=None)
         with open(self._conf_file, 'r') as f:
             conf = json.loads(f.read())
@@ -122,7 +125,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def entryAddDescription(self, token: str, description: str=None) -> dict:
+    def entryAddDescription(self, token: str, description: str = None) -> dict:
         """
         Add or update the description text for an entry
 
@@ -153,7 +156,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def entryDeleteDescription(self, token: str) ->dict:
+    def entryDeleteDescription(self, token: str) -> dict:
         """
         Delete a description from an entry
 
@@ -177,7 +180,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def entryAddPriority(self, token: str, priority: str='none') -> dict:
+    def entryAddPriority(self, token: str, priority: str = 'none') -> dict:
         """
         Add or update the priority of an entry. 
 
@@ -208,7 +211,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def entryDeletePriority(self, token: str) ->dict:
+    def entryDeletePriority(self, token: str) -> dict:
         """
         Delete a priority from an entry
 
@@ -232,7 +235,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def entryAddNotice(self, token: str, message: str, notice_type: str='info') -> dict:
+    def entryAddNotice(self, token: str, message: str, notice_type: str = 'info') -> dict:
         """
         Add or update a notice message for an entry
 
@@ -267,7 +270,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def entryDeleteNotice(self, token: str) ->dict:
+    def entryDeleteNotice(self, token: str) -> dict:
         """
         Delete a notice from an entry
 
@@ -292,7 +295,7 @@ class SaramAPI(Saram):
             raise StatusNotOk(r.status_code, r.text)
 
     def createNewSection(self, token: str, type: str,
-                         output: str, command: str, comment: str='saramPy'
+                         output: str, command: str, comment: str = 'saramPy'
                          ) -> dict:
         """
         Create a new section. This will add to the existing entry.
@@ -339,6 +342,34 @@ class SaramAPI(Saram):
             raise TypeError(f'Valid types are {self._valid_types}')
         r = requests.patch(f'{self.api_url}{token}', headers=self._headers,
                            json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def markSection(self, token: str, dataid: str) -> dict:
+        """
+        Mark a section.
+
+        :param token: Valid token for the entry
+        :type token: str
+        :param dataid: Valid section to add the comment to
+        :type dataid: str
+        :raises StatusNotOk: Exception on fail
+        :return: OK object
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.markSection(
+        >>>     token='080d33e0-demo-title',
+        >>>     dataid='bfe02810-656d-11e9-be3a-05d3364ece32',
+        >>> )
+        >>> print(s)
+        """
+
+        r = requests.patch(
+            f'{self.api_url}{token}/{dataid}/marked', headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
@@ -759,7 +790,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def getReport(self, token: str, render: bool=False) -> str:
+    def getReport(self, token: str, render: bool = False) -> str:
         """
         Generate a markdown report for an entry. Can be 
         optionally send to render the markdown
@@ -783,7 +814,7 @@ class SaramAPI(Saram):
             render = 'true'
         else:
             render = 'false'
-        r = request.get(f'{self.api_url}{token}/report/render={render}',
+        r = requests.get(f'{self.api_url}{token}/report/render={render}',
                         headers=self._headers)
         if r.status_code == 200:
             return r.text
@@ -863,6 +894,34 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
+    def adminDestroyDB(self, confirm: bool) -> dict:
+        """
+        Destroy the Saram db. This does not destroy the user or 
+        session dbs.
+
+        :param confirm: Confirm
+        :type title: bool
+        :raises StatusNotOk: Exception
+        :return: reponse dictionary object
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.adminDestroyDB(
+        >>>     confirm=True
+        >>> )
+        >>> print(s)
+        """
+
+        payload = {
+            'confirm': confirm
+        }
+        r = requests.delete(f'{self.base_url}admin/destroy', json=payload)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
     def adminAllUsers(self) -> list:
         """
         Get an array of all user objects
@@ -909,7 +968,7 @@ class SaramAPI(Saram):
 
     def adminCreateUser(
         self, username: str, password: str,
-        isAdmin: bool=False, avatar: str='/static/logo.png'
+        isAdmin: bool = False, avatar: str = '/static/logo.png'
     ) -> dict:
         """
         Create a new user

@@ -33,6 +33,8 @@ class Saram(object):
     '''
 
     def __init__(self, token: str) -> object:
+        if sys.version_info.major != 3:
+            raise TypeError('SaramPy is designed to run on Python 3')
         self._conf_file = f'{Path(Path().home())}/.saram.conf'
         try:
             with open(self._conf_file, 'r') as f:
