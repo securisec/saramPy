@@ -1151,3 +1151,27 @@ class SaramAPI(Saram):
             return r.json()
         else:
             raise StatusNotOk(r.status_code, r.text)
+
+    def miscCreateAdmin(self, username: str) -> list:
+        """
+        Create an admin account on first Saram install
+
+        :raises StatusNotOk: Exception
+        :return: Array of log objects
+        :rtype: list
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.miscCreateAdmin(username='admin')
+        >>> print(s)
+        """
+
+        payload = {
+            'username': username
+        }
+        r = requests.post(f'{self.base_url}misc/setup', json=payload)
+        if r.status_code == 200:
+            print(r.json())
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
