@@ -815,7 +815,7 @@ class SaramAPI(Saram):
         else:
             render = 'false'
         r = requests.get(f'{self.api_url}{token}/report/render={render}',
-                        headers=self._headers)
+                         headers=self._headers)
         if r.status_code == 200:
             return r.text
         else:
@@ -1152,7 +1152,7 @@ class SaramAPI(Saram):
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def miscCreateAdmin(self, username: str) -> list:
+    def miscCreateAdmin(self, username: str, url: str) -> list:
         """
         Create an admin account on first Saram install
 
@@ -1162,14 +1162,16 @@ class SaramAPI(Saram):
 
         >>> from saramPy.api import SaramAPI
         >>> saram = SaramAPI()
-        >>> s = saram.miscCreateAdmin(username='admin')
+        >>> s = saram.miscCreateAdmin(username='admin', url='http://localhost:8080/')
         >>> print(s)
         """
 
         payload = {
             'username': username
         }
-        r = requests.post(f'{self.base_url}misc/setup', json=payload)
+        if not url.endswith('/'):
+            url += '/'
+        r = requests.post(f'{url}misc/setup', json=payload)
         if r.status_code == 200:
             print(r.json())
             return r.json()
