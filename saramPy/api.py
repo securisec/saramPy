@@ -6,11 +6,13 @@ import requests
 
 class StatusNotOk(Exception):
     """Exception with status code is not 200"""
+
     pass
 
 
 class NotValidCategory(Exception):
     """Exception when category is not valid"""
+
     pass
 
 
@@ -26,39 +28,38 @@ class SaramAPI(Saram):
 
     def __init__(self):
         if sys.version_info.major != 3:
-            raise TypeError('SaramPy is designed to run on Python 3')
+            raise TypeError("SaramPy is designed to run on Python 3")
         super().__init__(token=None)
-        with open(self._conf_file, 'r') as f:
+        with open(self._conf_file, "r") as f:
             conf = json.loads(f.read())
-            self.username = conf['username']
-            self.apiKey = conf['apiKey']
-            self.avatar = conf.get('avatar', '/static/saramapi.png')
-            self.base_url = conf['base_url']
-        self.api_url = f'{self.base_url}api/'
-        self._valid_types = ['file', 'stdout',
-                             'script', 'dump', 'tool', 'image']
+            self.username = conf["username"]
+            self.apiKey = conf["apiKey"]
+            self.avatar = conf.get("avatar", "/static/saramapi.png")
+            self.base_url = conf["base_url"]
+        self.api_url = f"{self.base_url}api/"
+        self._valid_types = ["file", "stdout", "script", "dump", "tool", "image"]
         self._valid_categories = [
-            'android',
-            'cryptography',
-            'firmware',
-            'forensics',
-            'hardware',
-            'ios',
-            'misc',
-            'network',
-            'pcap',
-            'pwn',
-            'reversing',
-            'stego',
-            'web',
-            'none',
-            'other',
-            'scripting',
+            "android",
+            "cryptography",
+            "firmware",
+            "forensics",
+            "hardware",
+            "ios",
+            "misc",
+            "network",
+            "pcap",
+            "pwn",
+            "reversing",
+            "stego",
+            "web",
+            "none",
+            "other",
+            "scripting",
         ]
         self._headers = {
-            'x-saram-apikey': self.apiKey,
-            'x-saram-username': self.username,
-            'x-saram-avatar': self.avatar
+            "x-saram-apikey": self.apiKey,
+            "x-saram-username": self.username,
+            "x-saram-avatar": self.avatar,
         }
 
     def getAllEntries(self) -> list:
@@ -75,7 +76,7 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        r = requests.get(f'{self.api_url}all/entries', headers=self._headers)
+        r = requests.get(f"{self.api_url}all/entries", headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
@@ -97,7 +98,7 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        r = requests.get(f'{self.api_url}{token}', headers=self._headers)
+        r = requests.get(f"{self.api_url}{token}", headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
@@ -119,7 +120,37 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        r = requests.delete(f'{self.api_url}{token}', headers=self._headers)
+        r = requests.delete(f"{self.api_url}{token}", headers=self._headers)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise StatusNotOk(r.status_code, r.text)
+
+    def entryChangeWorkspace(self, token: str, workspace: str) -> dict:
+        """
+        Change the workspace for an entry
+
+        :param token: Valid token for entry
+        :type token: str
+        :param workspace: Optional workspace for the entry
+        :param workspace: str
+        :raises StatusNotOk: Exception
+        :return: Response oject
+        :rtype: dict
+
+        >>> from saramPy.api import SaramAPI
+        >>> saram = SaramAPI()
+        >>> s = saram.entryChangeWorkspace(
+        >>>     token='080d33e0-demo-title',
+        >>>     workspace='Some_workspace',
+        >>> )
+        >>> print(s)
+        """
+
+        payload = {"workspace": workspace}
+        r = requests.post(
+            f"{self.api_url}{token}/workspace", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -146,11 +177,10 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        payload = {
-            'description': description
-        }
-        r = requests.post(f'{self.api_url}{token}/description',
-                          headers=self._headers, json=payload)
+        payload = {"description": description}
+        r = requests.post(
+            f"{self.api_url}{token}/description", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -173,14 +203,13 @@ class SaramAPI(Saram):
         >>> )
         >>> print(s)
         """
-        r = requests.delete(
-            f'{self.api_url}{token}/description', headers=self._headers)
+        r = requests.delete(f"{self.api_url}{token}/description", headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def entryAddPriority(self, token: str, priority: str = 'none') -> dict:
+    def entryAddPriority(self, token: str, priority: str = "none") -> dict:
         """
         Add or update the priority of an entry. 
 
@@ -201,11 +230,10 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        payload = {
-            'priority': priority
-        }
-        r = requests.post(f'{self.api_url}{token}/priority',
-                          headers=self._headers, json=payload)
+        payload = {"priority": priority}
+        r = requests.post(
+            f"{self.api_url}{token}/priority", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -228,14 +256,15 @@ class SaramAPI(Saram):
         >>> )
         >>> print(s)
         """
-        r = requests.delete(
-            f'{self.api_url}{token}/priority', headers=self._headers)
+        r = requests.delete(f"{self.api_url}{token}/priority", headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def entryAddNotice(self, token: str, message: str, notice_type: str = 'info') -> dict:
+    def entryAddNotice(
+        self, token: str, message: str, notice_type: str = "info"
+    ) -> dict:
         """
         Add or update a notice message for an entry
 
@@ -259,12 +288,10 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        payload = {
-            'type': notice_type,
-            'message': message
-        }
-        r = requests.post(f'{self.api_url}{token}/notice',
-                          headers=self._headers, json=payload)
+        payload = {"type": notice_type, "message": message}
+        r = requests.post(
+            f"{self.api_url}{token}/notice", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -287,16 +314,15 @@ class SaramAPI(Saram):
         >>> )
         >>> print(s)
         """
-        r = requests.delete(
-            f'{self.api_url}{token}/notice', headers=self._headers)
+        r = requests.delete(f"{self.api_url}{token}/notice", headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def createNewSection(self, token: str, type: str,
-                         output: str, command: str, comment: str = 'saramPy'
-                         ) -> dict:
+    def createNewSection(
+        self, token: str, type: str, output: str, command: str, comment: str = "saramPy"
+    ) -> dict:
         """
         Create a new section. This will add to the existing entry.
 
@@ -328,20 +354,21 @@ class SaramAPI(Saram):
         """
 
         payload = {
-            'type': type,
-            'output': output,
-            'command': command,
-            'user': self.username,
-            'comment': {
-                'text': comment,
-                'username': self.username,
-                'avatar': self.avatar
-            }
+            "type": type,
+            "output": output,
+            "command": command,
+            "user": self.username,
+            "comment": {
+                "text": comment,
+                "username": self.username,
+                "avatar": self.avatar,
+            },
         }
         if type not in self._valid_types:
-            raise TypeError(f'Valid types are {self._valid_types}')
-        r = requests.patch(f'{self.api_url}{token}', headers=self._headers,
-                           json=payload)
+            raise TypeError(f"Valid types are {self._valid_types}")
+        r = requests.patch(
+            f"{self.api_url}{token}", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -369,7 +396,8 @@ class SaramAPI(Saram):
         """
 
         r = requests.patch(
-            f'{self.api_url}{token}/{dataid}/marked', headers=self._headers)
+            f"{self.api_url}{token}/{dataid}/marked", headers=self._headers
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -400,14 +428,13 @@ class SaramAPI(Saram):
         """
 
         payload = {
-            'data': {
-                'text': comment,
-                'username': self.username,
-                'avatar': self.avatar
-            }
+            "data": {"text": comment, "username": self.username, "avatar": self.avatar}
         }
-        r = requests.patch(f'{self.api_url}{token}/{dataid}/comment',
-                           json=payload, headers=self._headers)
+        r = requests.patch(
+            f"{self.api_url}{token}/{dataid}/comment",
+            json=payload,
+            headers=self._headers,
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -434,8 +461,7 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        r = requests.delete(
-            f'{self.api_url}{token}/{dataid}', headers=self._headers)
+        r = requests.delete(f"{self.api_url}{token}/{dataid}", headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
@@ -464,17 +490,14 @@ class SaramAPI(Saram):
         """
 
         if category not in self._valid_categories:
-            raise NotValidCategory(
-                f'Valid categories are {self._valid_categories}')
+            raise NotValidCategory(f"Valid categories are {self._valid_categories}")
         token = self._token_generator(title)
-        payload = {
-            'title': title,
-            'category': category
-        }
-        r = requests.post(f'{self.api_url}create/{token}', headers=self._headers,
-                          json=payload)
+        payload = {"title": title, "category": category}
+        r = requests.post(
+            f"{self.api_url}create/{token}", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
-            print('Created new entry')
+            print("Created new entry")
         else:
             raise StatusNotOk(r.status_code, r.text)
 
@@ -499,12 +522,10 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        payload = {
-            'apiKey': old_apikey,
-            'username': username
-        }
-        r = requests.post(f'{self.api_url}reset/key',
-                          headers=self._headers, json=payload)
+        payload = {"apiKey": old_apikey, "username": username}
+        r = requests.post(
+            f"{self.api_url}reset/key", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -529,18 +550,21 @@ class SaramAPI(Saram):
         """
 
         payload = {
-            'apiKey': self.apiKey,
-            'username': self.username,
-            'password': password
+            "apiKey": self.apiKey,
+            "username": self.username,
+            "password": password,
         }
-        r = requests.post(f'{self.api_url}reset/password',
-                          headers=self._headers, json=payload)
+        r = requests.post(
+            f"{self.api_url}reset/password", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
             raise StatusNotOk(r.status_code, r.text)
 
-    def changeUsername(self, api_key: str, old_username: str, new_username: str) -> dict:
+    def changeUsername(
+        self, api_key: str, old_username: str, new_username: str
+    ) -> dict:
         """
         Change the username to a new username
 
@@ -565,12 +589,13 @@ class SaramAPI(Saram):
         """
 
         payload = {
-            'apiKey': api_key,
-            'username': old_username,
-            'newUsername': new_username
+            "apiKey": api_key,
+            "username": old_username,
+            "newUsername": new_username,
         }
-        r = requests.post(f'{self.api_url}reset/username',
-                          headers=self._headers, json=payload)
+        r = requests.post(
+            f"{self.api_url}reset/username", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -594,11 +619,10 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        payload = {
-            'avatar': avatar
-        }
-        r = requests.post(f'{self.api_url}reset/avatar',
-                          headers=self._headers, json=payload)
+        payload = {"avatar": avatar}
+        r = requests.post(
+            f"{self.api_url}reset/avatar", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -622,8 +646,7 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        r = requests.get(f'{self.api_url}{token}/chat',
-                         headers=self._headers)
+        r = requests.get(f"{self.api_url}{token}/chat", headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
@@ -649,12 +672,10 @@ class SaramAPI(Saram):
         >>> )
         >>> print(s)
         """
-        payload = {
-            'username': self.username,
-            'message': message
-        }
-        r = requests.post(f'{self.api_url}{token}/chat',
-                          headers=self._headers, json=payload)
+        payload = {"username": self.username, "message": message}
+        r = requests.post(
+            f"{self.api_url}{token}/chat", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -680,11 +701,10 @@ class SaramAPI(Saram):
         >>> )
         >>> print(s)
         """
-        payload = {
-            'chatId': chat_id,
-        }
-        r = requests.delete(f'{self.api_url}{token}/chat',
-                            headers=self._headers, json=payload)
+        payload = {"chatId": chat_id}
+        r = requests.delete(
+            f"{self.api_url}{token}/chat", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -713,12 +733,10 @@ class SaramAPI(Saram):
         >>> )
         >>> print(s)
         """
-        payload = {
-            'chatId': chat_id,
-            'message': message,
-        }
-        r = requests.patch(f'{self.api_url}{token}/chat',
-                           headers=self._headers, json=payload)
+        payload = {"chatId": chat_id, "message": message}
+        r = requests.patch(
+            f"{self.api_url}{token}/chat", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -748,11 +766,12 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        payload = {
-            'commentId': commentId
-        }
-        r = requests.delete(f'{self.api_url}{token}/{dataid}/comment',
-                            headers=self._headers, json=payload)
+        payload = {"commentId": commentId}
+        r = requests.delete(
+            f"{self.api_url}{token}/{dataid}/comment",
+            headers=self._headers,
+            json=payload,
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -779,12 +798,10 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        payload = {
-            'token': token,
-            'dataid': dataid
-        }
-        r = requests.post(f'{self.api_url}image/imgbb',
-                          headers=self._headers, json=payload)
+        payload = {"token": token, "dataid": dataid}
+        r = requests.post(
+            f"{self.api_url}image/imgbb", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -811,11 +828,12 @@ class SaramAPI(Saram):
         >>> print(s)
         """
         if render:
-            render = 'true'
+            render = "true"
         else:
-            render = 'false'
-        r = requests.get(f'{self.api_url}{token}/report/render={render}',
-                         headers=self._headers)
+            render = "false"
+        r = requests.get(
+            f"{self.api_url}{token}/report/render={render}", headers=self._headers
+        )
         if r.status_code == 200:
             return r.text
         else:
@@ -837,10 +855,8 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        payload = {
-            'key': api_key
-        }
-        r = requests.post(f'{self.base_url}misc/valid/key', json=payload)
+        payload = {"key": api_key}
+        r = requests.post(f"{self.base_url}misc/valid/key", json=payload)
         if r.status_code == 200:
             return r.json()
         else:
@@ -860,7 +876,7 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        r = requests.get(f'{self.base_url}misc/auth/modules')
+        r = requests.get(f"{self.base_url}misc/auth/modules")
         if r.status_code == 200:
             return r.json()
         else:
@@ -885,10 +901,8 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        payload = {
-            'title': title
-        }
-        r = requests.post(f'{self.base_url}misc/valid/token', json=payload)
+        payload = {"title": title}
+        r = requests.post(f"{self.base_url}misc/valid/token", json=payload)
         if r.status_code == 200:
             return r.json()
         else:
@@ -913,10 +927,8 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        payload = {
-            'confirm': confirm
-        }
-        r = requests.delete(f'{self.base_url}admin/destroy', json=payload)
+        payload = {"confirm": confirm}
+        r = requests.delete(f"{self.base_url}admin/destroy", json=payload)
         if r.status_code == 200:
             return r.json()
         else:
@@ -936,8 +948,7 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        r = requests.get(f'{self.api_url}admin/allusers',
-                         headers=self._headers)
+        r = requests.get(f"{self.api_url}admin/allusers", headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
@@ -960,15 +971,19 @@ class SaramAPI(Saram):
         """
 
         r = requests.get(
-            f'{self.api_url}admin/user?id={user_id}', headers=self._headers)
+            f"{self.api_url}admin/user?id={user_id}", headers=self._headers
+        )
         if r.status_code == 200:
             return r.json()
         else:
             raise StatusNotOk(r.status_code, r.text)
 
     def adminCreateUser(
-        self, username: str, password: str,
-        isAdmin: bool = False, avatar: str = '/static/logo.png'
+        self,
+        username: str,
+        password: str,
+        isAdmin: bool = False,
+        avatar: str = "/static/logo.png",
     ) -> dict:
         """
         Create a new user
@@ -997,13 +1012,14 @@ class SaramAPI(Saram):
         """
 
         payload = {
-            'username': username,
-            'password': password,
-            'isAdmin': isAdmin,
-            'avatar': avatar
+            "username": username,
+            "password": password,
+            "isAdmin": isAdmin,
+            "avatar": avatar,
         }
-        r = requests.post(f'{self.api_url}admin/user',
-                          headers=self._headers, json=payload)
+        r = requests.post(
+            f"{self.api_url}admin/user", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -1027,11 +1043,10 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        payload = {
-            'user_id': user_id
-        }
-        r = requests.delete(f'{self.api_url}admin/user',
-                            headers=self._headers, json=payload)
+        payload = {"user_id": user_id}
+        r = requests.delete(
+            f"{self.api_url}admin/user", headers=self._headers, json=payload
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -1066,7 +1081,10 @@ class SaramAPI(Saram):
         """
         payload = kwargs
         r = requests.patch(
-            f'{self.api_url}admin/user?id={user_id}', headers=self._headers, json=payload)
+            f"{self.api_url}admin/user?id={user_id}",
+            headers=self._headers,
+            json=payload,
+        )
         if r.status_code == 200:
             return r.json()
         else:
@@ -1086,7 +1104,7 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        r = requests.get(f'{self.api_url}admin/logs', headers=self._headers)
+        r = requests.get(f"{self.api_url}admin/logs", headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
@@ -1106,7 +1124,7 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        r = requests.delete(f'{self.api_url}admin/logs', headers=self._headers)
+        r = requests.delete(f"{self.api_url}admin/logs", headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
@@ -1126,7 +1144,7 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        r = requests.get(f'{self.api_url}admin/status', headers=self._headers)
+        r = requests.get(f"{self.api_url}admin/status", headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
@@ -1146,7 +1164,7 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        r = requests.get(f'{self.api_url}admin/errors', headers=self._headers)
+        r = requests.get(f"{self.api_url}admin/errors", headers=self._headers)
         if r.status_code == 200:
             return r.json()
         else:
@@ -1166,12 +1184,10 @@ class SaramAPI(Saram):
         >>> print(s)
         """
 
-        payload = {
-            'username': username
-        }
-        if not url.endswith('/'):
-            url += '/'
-        r = requests.post(f'{url}misc/setup', json=payload)
+        payload = {"username": username}
+        if not url.endswith("/"):
+            url += "/"
+        r = requests.post(f"{url}misc/setup", json=payload)
         if r.status_code == 200:
             print(r.json())
             return r.json()
