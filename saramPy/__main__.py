@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import sys
 import argparse
 import os
 from pathlib import Path
@@ -76,6 +77,11 @@ def main():
             p.file_content(
                 args.file, file_name=Path(args.file).parts[-1], comment=args.comment
             ).send_to_server()
+        elif not sys.stdin.isatty():
+            p.variable_output(
+                "\n".join(sys.stdin.read().splitlines()),
+                script_name=args.comment if args.comment else "Piped input",
+            ).send()
 
 
 if __name__ == "__main__":
