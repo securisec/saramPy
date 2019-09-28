@@ -304,4 +304,3 @@ class SaramInit:
             conf = json.dumps(creds, indent=2)
             f.write(conf)
         print(f"Saved the conf file to ${self._conf_file}")
-
